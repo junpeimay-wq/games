@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🐍 スネークゲーム</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -9,7 +10,17 @@
   <h1>🐍 スネークゲーム</h1>
   <div id="info">スコア: <span id="score">0</span>　最高: <span id="best">0</span></div>
   <canvas id="c" width="400" height="400"></canvas>
-  <div id="msg">スペース or クリックでスタート</div>
+  <div id="msg">タップ or スペースでスタート</div>
+  <div id="dpad">
+    <div class="dpad-row">
+      <button id="btn-up">▲</button>
+    </div>
+    <div class="dpad-row">
+      <button id="btn-left">◀</button>
+      <button id="btn-down">▼</button>
+      <button id="btn-right">▶</button>
+    </div>
+  </div>
   <script src="game.js"></script>
 </body>
 </html>

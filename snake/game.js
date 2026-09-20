@@ -26,7 +26,7 @@ function step() {
     running = false;
     best = Math.max(best, score);
     document.getElementById('best').textContent = best;
-    document.getElementById('msg').textContent = '💀 ゲームオーバー！スペース or クリックで再スタート';
+    document.getElementById('msg').textContent = '💀 ゲームオーバー！タップ or スペースで再スタート';
     return;
   }
   snake.unshift(head);
@@ -43,12 +43,10 @@ function step() {
 function draw() {
   ctx.fillStyle = '#16213e';
   ctx.fillRect(0, 0, 400, 400);
-  // 食べ物
   ctx.fillStyle = '#ff6b6b';
   ctx.beginPath();
   ctx.arc(food.x*SZ+SZ/2, food.y*SZ+SZ/2, SZ/2-2, 0, Math.PI*2);
   ctx.fill();
-  // スネーク
   snake.forEach((s, i) => {
     ctx.fillStyle = i===0 ? '#00ff88' : '#00cc66';
     ctx.fillRect(s.x*SZ+1, s.y*SZ+1, SZ-2, SZ-2);
@@ -64,6 +62,11 @@ function start() {
   loop = setInterval(step, 120);
 }
 
+function turn(nd) {
+  if (nd && !(nd.x===-dir.x && nd.y===-dir.y)) nextDir = nd;
+}
+
+// キーボード操作
 document.addEventListener('keydown', e => {
   const map = {
     ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1},
@@ -72,8 +75,32 @@ document.addEventListener('keydown', e => {
   };
   if (e.key === ' ') { e.preventDefault(); start(); return; }
   const nd = map[e.key];
-  if (nd && !(nd.x===-dir.x && nd.y===-dir.y)) { e.preventDefault(); nextDir = nd; }
+  if (nd) { e.preventDefault(); turn(nd); }
 });
-C.addEventListener('click', start);
+
+// タッチ（スワイプ）操作
+let touchStartX = 0, touchStartY = 0;
+C.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  e.preventDefault();
+}, {passive: false});
+C.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { start(); return; } // タップ→スタート
+  if (Math.abs(dx) > Math.abs(dy)) {
+    turn(dx > 0 ? {x:1,y:0} : {x:-1,y:0});
+  } else {
+    turn(dy > 0 ? {x:0,y:1} : {x:0,y:-1});
+  }
+  e.preventDefault();
+}, {passive: false});
+
+// 方向ボタン
+document.getElementById('btn-up').addEventListener('click',    () => { start(); turn({x:0,y:-1}); });
+document.getElementById('btn-down').addEventListener('click',  () => { start(); turn({x:0,y:1}); });
+document.getElementById('btn-left').addEventListener('click',  () => { start(); turn({x:-1,y:0}); });
+document.getElementById('btn-right').addEventListener('click', () => { start(); turn({x:1,y:0}); });
 
 init();
