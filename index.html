@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>🎮 ゲーム一覧</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1a2e;
+      color: #eee;
+      font-family: monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      color: #00ff88;
+      margin-bottom: 40px;
+      letter-spacing: 4px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #16213e;
+      border: 2px solid #00ff88;
+      border-radius: 8px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,255,136,0.2);
+    }
+    .card img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      display: block;
+    }
+    .card-body {
+      padding: 14px 16px;
+    }
+    .card-title {
+      font-size: 1.1rem;
+      color: #00ff88;
+      margin-bottom: 4px;
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 GAME ARCADE</h1>
+  <div class="grid">
+    <a class="card" href="snake/index.html">
+      <img src="snake/thumbnail.jpg" alt="スネークゲーム">
+      <div class="card-body">
+        <div class="card-title">🐍 スネークゲーム</div>
+        <div class="card-desc">矢印キー or WASD で操作。食べ物を食べて長くなれ！</div>
+      </div>
+    </a>
+  </div>
+</body>
+</html>
