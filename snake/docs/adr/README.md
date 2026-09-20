@@ -9,6 +9,7 @@
 | [0001](0001-single-file-structure.md) | 単一HTMLファイル構成からファイル分離構成へ | 承認済み |
 | [0002](0002-canvas-rendering.md) | 描画にCanvas APIを採用 | 承認済み |
 | [0003](0003-touch-controls.md) | スマホ・タブレット向けタッチ操作の追加 | 承認済み |
+| [0004](0004-mit-license.md) | MITライセンスの採用 | 承認済み |
 
 ## 新しいADRの追加方法
 
