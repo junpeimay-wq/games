@@ -3,6 +3,46 @@ const ctx = C.getContext('2d');
 const SZ = 20, COLS = 20, ROWS = 20;
 let snake, dir, nextDir, food, score, best = 0, running = false, loop;
 
+// IndexedDBの設定
+let db;
+const request = indexedDB.open('SnakeGameDB', 1);
+
+request.onupgradeneeded = function(e) {
+  db = e.target.result;
+  if (!db.objectStoreNames.contains('scores')) {
+    db.createObjectStore('scores', { keyPath: 'id' });
+  }
+};
+
+request.onsuccess = function(e) {
+  db = e.target.result;
+  loadBestScore();
+};
+
+request.onerror = function(e) {
+  console.error('IndexedDB error:', e.target.error);
+};
+
+function loadBestScore() {
+  const transaction = db.transaction(['scores'], 'readonly');
+  const store = transaction.objectStore('scores');
+  const getRequest = store.get('highscore');
+  
+  getRequest.onsuccess = function(e) {
+    if (e.target.result) {
+      best = e.target.result.score;
+      document.getElementById('best').textContent = best;
+    }
+  };
+}
+
+function saveBestScore(newBest) {
+  if (!db) return;
+  const transaction = db.transaction(['scores'], 'readwrite');
+  const store = transaction.objectStore('scores');
+  store.put({ id: 'highscore', score: newBest });
+}
+
 function init() {
   snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
   dir = {x:1,y:0};
@@ -24,8 +64,13 @@ function step() {
   if (head.x<0 || head.x>=COLS || head.y<0 || head.y>=ROWS || snake.some(s=>s.x===head.x&&s.y===head.y)) {
     clearInterval(loop);
     running = false;
-    best = Math.max(best, score);
-    document.getElementById('best').textContent = best;
+    
+    if (score > best) {
+      best = score;
+      document.getElementById('best').textContent = best;
+      saveBestScore(best);
+    }
+    
     document.getElementById('msg').textContent = '💀 ゲームオーバー！タップ or スペースで再スタート';
     return;
   }

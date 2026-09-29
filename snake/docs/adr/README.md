@@ -10,6 +10,7 @@
 | [0002](0002-canvas-rendering.md) | 描画にCanvas APIを採用 | 承認済み |
 | [0003](0003-touch-controls.md) | スマホ・タブレット向けタッチ操作の追加 | 承認済み |
 | [0004](0004-mit-license.md) | MITライセンスの採用 | 承認済み |
+| [0005](0005-indexeddb-highscore.md) | IndexedDBによるハイスコア永続化 | 承認済み |
 
 ## 新しいADRの追加方法
 
