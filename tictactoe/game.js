@@ -1,6 +1,6 @@
 let board = Array(9).fill(null);
-let playerOverwrites = 2;
-let cpuOverwrites = 2;
+let playerOverwrites = 1;
+let cpuOverwrites = 1;
 let isGameOver = false;
 let isCpuTurn = false;
 
@@ -18,8 +18,8 @@ const resetBtn = document.getElementById('reset-btn');
 
 function initGame() {
   board = Array(9).fill(null);
-  playerOverwrites = 2;
-  cpuOverwrites = 2;
+  playerOverwrites = 1;
+  cpuOverwrites = 1;
   isGameOver = false;
   isCpuTurn = false;
 
@@ -152,7 +152,6 @@ function cpuTurn() {
 function findBestCpuMove() {
   let possibleMoves = [];
 
-  // Evaluate all possible moves (empty spaces and valid overwrites)
   for (let i = 0; i < 9; i++) {
     const isNull = board[i] === null;
     const isPlayerO = board[i] === 'O';
@@ -161,23 +160,17 @@ function findBestCpuMove() {
       let score = 0;
       const isOverwrite = isPlayerO;
 
-      // Simulate CPU move
       const simBoard = [...board];
       simBoard[i] = 'X';
 
-      // 1. Immediate Win
       if (checkWin(simBoard, 'X')) {
         score += 10000;
       }
 
-      // 2. Block Player Immediate Win
-      // Check if Player could win on their next turn if CPU does NOT take this spot
       let blocksPlayerWin = false;
       for (let combo of WINNING_COMBOS) {
         if (combo.includes(i)) {
           const oCount = combo.filter(idx => board[idx] === 'O').length;
-          const nullCount = combo.filter(idx => board[idx] === null).length;
-          // If player has 2 in a row and this cell is the 3rd
           if (oCount === 2 && (board[i] === null || board[i] === 'O')) {
             blocksPlayerWin = true;
           }
@@ -187,30 +180,23 @@ function findBestCpuMove() {
         score += 5000;
       }
 
-      // 3. Aggressive Overwrite Strategy
       if (isOverwrite) {
-        score += 300; // Base aggressiveness bonus for overwriting
-
-        // Overwrite Center
+        score += 300;
         if (i === 4) score += 400;
 
-        // Overwrite an 'O' that is part of a potential player line
         for (let combo of WINNING_COMBOS) {
           if (combo.includes(i) && combo.filter(idx => board[idx] === 'O').length >= 2) {
             score += 450;
           }
         }
 
-        // Creates 2-in-a-row for CPU by overwriting
         const cpuTwoLines = countLinesWithMark(simBoard, 'X');
         score += cpuTwoLines * 250;
       } else {
-        // Placement in Empty Space
-        if (i === 4) score += 200; // Center
-        else if ([0, 2, 6, 8].includes(i)) score += 100; // Corners
-        else score += 40; // Edges
+        if (i === 4) score += 200;
+        else if ([0, 2, 6, 8].includes(i)) score += 100;
+        else score += 40;
 
-        // Creates 2-in-a-row for CPU
         const cpuTwoLines = countLinesWithMark(simBoard, 'X');
         score += cpuTwoLines * 150;
       }
@@ -221,10 +207,8 @@ function findBestCpuMove() {
 
   if (possibleMoves.length === 0) return null;
 
-  // Sort moves by score descending
   possibleMoves.sort((a, b) => b.score - a.score);
 
-  // Return best move (if multiple have same score, add slight randomness among top tier)
   const topScore = possibleMoves[0].score;
   const topMoves = possibleMoves.filter(m => m.score === topScore);
   return topMoves[Math.floor(Math.random() * topMoves.length)].index;
