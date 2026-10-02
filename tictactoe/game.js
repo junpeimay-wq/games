@@ -55,6 +55,21 @@ function checkWin(b, mark) {
   return null;
 }
 
+function canPlayerWinNextTurn(b, pOverwrites) {
+  for (let i = 0; i < 9; i++) {
+    const isNull = b[i] === null;
+    const isCpuX = b[i] === 'X';
+    if (isNull || (isCpuX && pOverwrites > 0)) {
+      const testB = [...b];
+      testB[i] = 'O';
+      if (checkWin(testB, 'O')) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function countLinesWithMark(b, mark) {
   let count = 0;
   for (let combo of WINNING_COMBOS) {
@@ -152,6 +167,8 @@ function cpuTurn() {
 function findBestCpuMove() {
   let possibleMoves = [];
 
+  const playerCanWinNow = canPlayerWinNextTurn(board, playerOverwrites);
+
   for (let i = 0; i < 9; i++) {
     const isNull = board[i] === null;
     const isPlayerO = board[i] === 'O';
@@ -163,42 +180,43 @@ function findBestCpuMove() {
       const simBoard = [...board];
       simBoard[i] = 'X';
 
+      // 1. Immediate CPU Win -> Highest Priority
       if (checkWin(simBoard, 'X')) {
+        return i; // Win immediately!
+      }
+
+      // 2. Check if Player can win on their next turn after this move
+      const playerCanWinAfter = canPlayerWinNextTurn(simBoard, playerOverwrites);
+
+      if (playerCanWinAfter) {
+        // This move leaves CPU vulnerable to Player win -> Heavy Penalty
+        score -= 50000;
+      } else if (playerCanWinNow) {
+        // This move successfully blocked a Player win threat -> Major Defense Bonus
         score += 10000;
       }
 
-      let blocksPlayerWin = false;
-      for (let combo of WINNING_COMBOS) {
-        if (combo.includes(i)) {
-          const oCount = combo.filter(idx => board[idx] === 'O').length;
-          if (oCount === 2 && (board[i] === null || board[i] === 'O')) {
-            blocksPlayerWin = true;
-          }
-        }
-      }
-      if (blocksPlayerWin) {
-        score += 5000;
-      }
-
+      // 3. Strategic Overwriting & Position Values
       if (isOverwrite) {
-        score += 300;
-        if (i === 4) score += 400;
+        score += 400; // Overwriting pressure
+        if (i === 4) score += 500; // Overwrite center
 
+        // Extra bonus for overwriting an 'O' in a multi-O line
         for (let combo of WINNING_COMBOS) {
           if (combo.includes(i) && combo.filter(idx => board[idx] === 'O').length >= 2) {
-            score += 450;
+            score += 600;
           }
         }
 
         const cpuTwoLines = countLinesWithMark(simBoard, 'X');
-        score += cpuTwoLines * 250;
+        score += cpuTwoLines * 300;
       } else {
-        if (i === 4) score += 200;
-        else if ([0, 2, 6, 8].includes(i)) score += 100;
-        else score += 40;
+        if (i === 4) score += 250;
+        else if ([0, 2, 6, 8].includes(i)) score += 120;
+        else score += 50;
 
         const cpuTwoLines = countLinesWithMark(simBoard, 'X');
-        score += cpuTwoLines * 150;
+        score += cpuTwoLines * 200;
       }
 
       possibleMoves.push({ index: i, score: score, isOverwrite: isOverwrite });
