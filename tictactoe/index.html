@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>❌⭕ 戦略的〇×ゲーム</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>❌⭕ 戦略的〇×ゲーム</h1>
+  
+  <div class="status-container">
+    <div class="player-status player-o">
+      <span class="label">あなた (〇):</span>
+      <span class="charges">上書き可能: <b id="player-charges">2</b> 回</span>
+    </div>
+    <div class="player-status player-x">
+      <span class="label">CPU (×):</span>
+      <span class="charges">上書き可能: <b id="cpu-charges">2</b> 回</span>
+    </div>
+  </div>
+
+  <div id="msg" class="message">あなたの番です (〇)</div>
+
+  <div class="board" id="board">
+    <button class="cell" data-index="0"></button>
+    <button class="cell" data-index="1"></button>
+    <button class="cell" data-index="2"></button>
+    <button class="cell" data-index="3"></button>
+    <button class="cell" data-index="4"></button>
+    <button class="cell" data-index="5"></button>
+    <button class="cell" data-index="6"></button>
+    <button class="cell" data-index="7"></button>
+    <button class="cell" data-index="8"></button>
+  </div>
+
+  <button id="reset-btn" class="reset-btn">リセット / もう一度遊ぶ</button>
+
+  <script src="game.js"></script>
+</body>
+</html>

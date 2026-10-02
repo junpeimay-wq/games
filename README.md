@@ -9,16 +9,17 @@
 | ゲーム | 説明 | プレイ |
 |--------|------|--------|
 | 🐍 スネーク | 食べ物を食べて長くなれ！ | [遊ぶ](https://junpeimay-wq.github.io/games/snake/index.html) |
+| ❌⭕ 戦略的〇×ゲーム | 相手の駒を2回まで上書きできる思考型マルバツゲーム | [遊ぶ](https://junpeimay-wq.github.io/games/tictactoe/index.html) |
 
 ## 操作方法
 
-- **キーボード**: 矢印キー / WASD
-- **スマホ・タブレット**: スワイプ または 画面上の方向ボタン
+- **キーボード**: 矢印キー / WASD / クリック
+- **スマホ・タブレット**: タッチ / スワイプ / 方向ボタン / タップ
 
 ## 技術スタック
 
 - HTML / CSS / JavaScript（ライブラリなし）
-- Canvas API
+- Canvas API / DOM API
 - GitHub Pages でホスティング
 
 ## ライセンス
