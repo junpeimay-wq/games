@@ -166,8 +166,10 @@ function cpuTurn() {
 
 function findBestCpuMove() {
   let possibleMoves = [];
-
   const playerCanWinNow = canPlayerWinNextTurn(board, playerOverwrites);
+
+  // Count empty spaces left
+  const emptySpaces = board.filter(val => val === null).length;
 
   for (let i = 0; i < 9; i++) {
     const isNull = board[i] === null;
@@ -182,38 +184,42 @@ function findBestCpuMove() {
 
       // 1. Immediate CPU Win -> Highest Priority
       if (checkWin(simBoard, 'X')) {
-        return i; // Win immediately!
+        return i;
       }
 
       // 2. Check if Player can win on their next turn after this move
       const playerCanWinAfter = canPlayerWinNextTurn(simBoard, playerOverwrites);
 
       if (playerCanWinAfter) {
-        // This move leaves CPU vulnerable to Player win -> Heavy Penalty
         score -= 50000;
       } else if (playerCanWinNow) {
-        // This move successfully blocked a Player win threat -> Major Defense Bonus
-        score += 10000;
+        score += 10000; // Successfully blocked Player's win threat!
       }
 
-      // 3. Strategic Overwriting & Position Values
+      // 3. Overwrite Conservation Strategy:
+      // Early/Mid-game: Overwriting when empty spaces exist should be conserved UNLESS it blocks a win or creates a winning fork.
       if (isOverwrite) {
-        score += 400; // Overwriting pressure
-        if (i === 4) score += 500; // Overwrite center
+        if (!playerCanWinNow && emptySpaces > 4) {
+          // Early game unnecessary overwrite penalty (prevents wasting trump card)
+          score -= 300;
+        } else {
+          score += 100;
+        }
 
         // Extra bonus for overwriting an 'O' in a multi-O line
         for (let combo of WINNING_COMBOS) {
           if (combo.includes(i) && combo.filter(idx => board[idx] === 'O').length >= 2) {
-            score += 600;
+            score += 500;
           }
         }
 
         const cpuTwoLines = countLinesWithMark(simBoard, 'X');
         score += cpuTwoLines * 300;
       } else {
-        if (i === 4) score += 250;
-        else if ([0, 2, 6, 8].includes(i)) score += 120;
-        else score += 50;
+        // Placement in empty spaces
+        if (i === 4) score += 250; // Center
+        else if ([0, 2, 6, 8].includes(i)) score += 120; // Corners
+        else score += 50; // Edges
 
         const cpuTwoLines = countLinesWithMark(simBoard, 'X');
         score += cpuTwoLines * 200;
