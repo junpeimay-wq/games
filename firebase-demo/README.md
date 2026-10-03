@@ -68,24 +68,22 @@ const firebaseConfig = {
 
 ### Firestore セキュリティルール（推奨）
 
-Firestore Console の **「ルール」** タブで以下を設定：
+ルールの正本は [`firestore.rules`](firestore.rules) です。Firebase Console の **「ルール」** タブにその内容を設定するか、Firebase CLIでデプロイしてください。
 
+```bash
+cd ~/games/firebase-demo
+npx firebase-tools deploy --only firestore:rules --project <FirebaseのプロジェクトID>
 ```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /scores/{docId} {
-      // 読み取りは全員OK
-      allow read: always;
-      // 書き込みはログイン済みユーザーが自分のUIDで投稿する場合のみ
-      allow create: if request.auth != null
-                    && request.resource.data.uid == request.auth.uid
-                    && request.resource.data.score is number
-                    && request.resource.data.score >= 0;
-    }
-  }
-}
+
+Firestore Emulatorで許可・拒否のテストを実行できます（Node.js 22以上、npm、Javaが必要です）。
+
+```bash
+cd ~/games/firebase-demo
+npm ci
+npm test
 ```
+
+このルールは投稿者とデータ形式を制限しますが、ブラウザーから送信されるスコア自体の正当性までは検証できません。不正スコアも防ぎたい場合は、信頼できるサーバー側でスコアを検証してください。
 
 ---
 

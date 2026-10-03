@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /scores/{docId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.keys().hasAll([
+                      'uid', 'name', 'photoURL', 'game', 'score', 'createdAt'
+                    ])
+                    && request.resource.data.keys().hasOnly([
+                      'uid', 'name', 'photoURL', 'game', 'score', 'createdAt'
+                    ])
+                    && request.resource.data.name is string
+                    && request.resource.data.photoURL is string
+                    && request.resource.data.game in [
+                      'snake', 'tictactoe', 'block-puzzle'
+                    ]
+                    && request.resource.data.score is int
+                    && request.resource.data.score >= 0
+                    && request.resource.data.createdAt is timestamp
+                    && request.resource.data.createdAt == request.time;
+    }
+  }
+}
