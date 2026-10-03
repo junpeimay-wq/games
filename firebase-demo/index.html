@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FDT7JTRCNE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-FDT7JTRCNE');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 グローバルランキング - GAME ARCADE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>🏆 グローバルランキング</h1>
+    <a class="back-link" href="../index.html">← アーケードへ戻る</a>
+  </header>
+
+  <!-- 認証エリア -->
+  <section class="auth-section">
+    <button id="login-btn" class="btn btn-login">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Googleでログイン
+    </button>
+    <div id="user-info" class="user-info hidden">
+      <img id="user-avatar" class="user-avatar" src="" alt="">
+      <span id="user-name"></span>
+      <button id="logout-btn" class="btn btn-logout">ログアウト</button>
+    </div>
+  </section>
+
+  <!-- スコア送信エリア（ログイン時のみ表示） -->
+  <section id="submit-section" class="submit-section hidden">
+    <h2>スコアを登録</h2>
+    <div class="submit-form">
+      <select id="game-select" class="input-field">
+        <option value="snake">🐍 スネークゲーム</option>
+        <option value="tictactoe">❌⭕ 戦略的〇×</option>
+        <option value="block-puzzle">🧩 8x8ブロックパズル</option>
+      </select>
+      <input id="score-input" class="input-field" type="number" min="0" placeholder="スコアを入力" />
+      <button id="submit-btn" class="btn btn-submit">送信</button>
+    </div>
+    <p id="submit-msg" class="submit-msg"></p>
+  </section>
+
+  <!-- ランキングエリア -->
+  <section class="ranking-section">
+    <div class="ranking-header">
+      <h2>TOP 10</h2>
+      <select id="filter-game" class="input-field filter-select">
+        <option value="all">🎮 全ゲーム</option>
+        <option value="snake">🐍 スネーク</option>
+        <option value="tictactoe">❌⭕ 〇×ゲーム</option>
+        <option value="block-puzzle">🧩 ブロックパズル</option>
+      </select>
+    </div>
+    <ul id="ranking-list" class="ranking-list">
+      <li class="empty">読み込み中...</li>
+    </ul>
+  </section>
+
+  <!-- Firebase game.js を type="module" で読み込む -->
+  <script type="module" src="game.js"></script>
+</body>
+</html>

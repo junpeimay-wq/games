@@ -1,0 +1,257 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #1a1a2e;
+  color: #eee;
+  font-family: monospace;
+  min-height: 100vh;
+  padding: 20px 16px 40px;
+}
+
+/* ─── Header ───────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 600px;
+  margin: 0 auto 24px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+h1 {
+  font-size: 1.6rem;
+  color: #00ff88;
+}
+
+.back-link {
+  color: #aaa;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.15s;
+}
+.back-link:hover { color: #00ff88; }
+
+/* ─── Common ────────────────────────────────────────────── */
+h2 {
+  font-size: 1.1rem;
+  color: #00e5ff;
+  margin-bottom: 12px;
+}
+
+.hidden { display: none !important; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid;
+  transition: all 0.15s ease;
+}
+
+.btn-login {
+  background: #16213e;
+  color: #eee;
+  border-color: #00ff88;
+}
+.btn-login:hover {
+  background: #00ff88;
+  color: #1a1a2e;
+}
+.btn-login img {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-logout {
+  background: #16213e;
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+}
+.btn-logout:hover {
+  background: #ff6b6b;
+  color: #1a1a2e;
+}
+
+.btn-submit {
+  background: #16213e;
+  color: #00ff88;
+  border-color: #00ff88;
+}
+.btn-submit:hover {
+  background: #00ff88;
+  color: #1a1a2e;
+}
+.btn-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Auth Section ──────────────────────────────────────── */
+.auth-section {
+  max-width: 600px;
+  margin: 0 auto 20px;
+  background: #16213e;
+  border: 2px solid #334155;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #00ff88;
+}
+
+/* ─── Submit Section ────────────────────────────────────── */
+.submit-section {
+  max-width: 600px;
+  margin: 0 auto 24px;
+  background: #16213e;
+  border: 2px solid #334155;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.submit-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.input-field {
+  background: #0f172a;
+  color: #eee;
+  border: 2px solid #334155;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.15s;
+}
+.input-field:focus {
+  outline: none;
+  border-color: #00ff88;
+}
+
+#score-input {
+  width: 140px;
+}
+
+.submit-msg {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  min-height: 1.3em;
+  color: #00e5ff;
+}
+
+/* ─── Ranking Section ───────────────────────────────────── */
+.ranking-section {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #16213e;
+  border: 2px solid #00ff88;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 24px rgba(0, 255, 136, 0.1);
+}
+
+.ranking-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-select {
+  font-size: 0.85rem;
+  padding: 6px 10px;
+}
+
+.ranking-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: background 0.1s;
+}
+
+.top-1 { border-color: #ffd700; background: #1a1700; }
+.top-2 { border-color: #c0c0c0; background: #161617; }
+.top-3 { border-color: #cd7f32; background: #180f08; }
+
+.rank-medal {
+  font-size: 1.2rem;
+  min-width: 28px;
+}
+
+.rank-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #334155;
+}
+
+.rank-name {
+  flex: 1;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-game {
+  font-size: 1.1rem;
+}
+
+.rank-score {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #00ff88;
+  min-width: 60px;
+  text-align: right;
+}
+
+.empty {
+  color: #555;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9rem;
+}
