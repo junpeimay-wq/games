@@ -10,12 +10,12 @@ import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.14.1/firebas
 
 // ⚠️ Firebase Console > プロジェクト設定 > マイアプリ > SDK の設定と構成 から取得
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyCUqG-6e544ZPrwzgdHtq0g0GbI3nGa6Ow",
+  authDomain:        "junpeimay-games.firebaseapp.com",
+  projectId:         "junpeimay-games",
+  storageBucket:     "junpeimay-games.firebasestorage.app",
+  messagingSenderId: "562804706409",
+  appId:             "1:562804706409:web:8147bca9901e2e51a1e6f8"
 };
 
 const app = initializeApp(firebaseConfig);
