@@ -6,6 +6,11 @@ let availablePieces = [null, null, null];
 let selectedSlot = null;
 let isGameOver = false;
 
+// Drag state
+let isDragging = false;
+let dragSlotIndex = null;
+let dragX = 0, dragY = 0;
+
 // IndexedDB
 let db;
 const dbReq = indexedDB.open('BlockPuzzleDB', 1);
@@ -40,10 +45,8 @@ function saveBestScore(newBest) {
   store.put({ id: 'highscore', score: newBest });
 }
 
-// Block shapes
+// Block shapes (1x1 block REMOVED)
 const SHAPES = [
-  // 1s
-  { shape: [[1]], color: '#00ff88' },
   // 2s
   { shape: [[1, 1]], color: '#00e5ff' },
   { shape: [[1], [1]], color: '#00e5ff' },
@@ -72,6 +75,8 @@ const scoreEl = document.getElementById('score');
 const bestEl = document.getElementById('best');
 const slotsEls = document.querySelectorAll('.piece-slot');
 const resetBtn = document.getElementById('reset-btn');
+const rotateBtn = document.getElementById('rotate-btn');
+const dragProxyEl = document.getElementById('drag-proxy');
 
 function initGame() {
   board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
@@ -80,7 +85,7 @@ function initGame() {
   isGameOver = false;
 
   scoreEl.textContent = 0;
-  msgEl.textContent = 'ブロックを選んで盤面に配置してください';
+  msgEl.textContent = 'ブロックをドラッグ＆ドロップして盤面に配置してください';
 
   renderBoard();
   spawnNewPieces();
@@ -98,9 +103,6 @@ function renderBoard() {
         cell.classList.add('filled');
         cell.style.background = board[r][c];
       }
-      cell.addEventListener('mouseenter', () => handleCellHover(r, c));
-      cell.addEventListener('mouseleave', clearPreview);
-      cell.addEventListener('click', () => handleCellClick(r, c));
       boardEl.appendChild(cell);
     }
   }
@@ -114,6 +116,37 @@ function spawnNewPieces() {
   renderSlots();
   checkGameOver();
 }
+
+function rotateMatrixClockwise(matrix) {
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  const rotated = Array(cols).fill(null).map(() => Array(rows).fill(0));
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      rotated[c][rows - 1 - r] = matrix[r][c];
+    }
+  }
+  return rotated;
+}
+
+function rotatePiece(piece) {
+  if (!piece) return;
+  piece.shape = rotateMatrixClockwise(piece.shape);
+}
+
+rotateBtn.addEventListener('click', () => {
+  if (isGameOver) return;
+  if (selectedSlot !== null && availablePieces[selectedSlot]) {
+    rotatePiece(availablePieces[selectedSlot]);
+  } else {
+    // Rotate all available pieces if none specifically selected
+    availablePieces.forEach(p => {
+      if (p) rotatePiece(p);
+    });
+  }
+  renderSlots();
+  msgEl.textContent = '🔄 ブロックを回転しました！';
+});
 
 function renderSlots() {
   slotsEls.forEach((slotEl, idx) => {
@@ -134,37 +167,114 @@ function renderSlots() {
       slotEl.classList.add('selected');
     }
 
-    const gridEl = document.createElement('div');
-    gridEl.className = 'piece-grid';
-    gridEl.style.gridTemplateRows = `repeat(${piece.shape.length}, 18px)`;
-    gridEl.style.gridTemplateColumns = `repeat(${piece.shape[0].length}, 18px)`;
-
-    for (let r = 0; r < piece.shape.length; r++) {
-      for (let c = 0; c < piece.shape[r].length; c++) {
-        const cell = document.createElement('div');
-        cell.className = 'piece-cell';
-        if (piece.shape[r][c]) {
-          cell.style.background = piece.color;
-        }
-        gridEl.appendChild(cell);
-      }
-    }
-
+    const gridEl = createPieceGrid(piece, 18);
     slotEl.appendChild(gridEl);
   });
 }
 
-slotsEls.forEach((slotEl, idx) => {
-  slotEl.addEventListener('click', () => {
-    if (isGameOver || !availablePieces[idx]) return;
-    if (selectedSlot === idx) {
-      selectedSlot = null;
-    } else {
-      selectedSlot = idx;
+function createPieceGrid(piece, cellSize = 18) {
+  const gridEl = document.createElement('div');
+  gridEl.className = 'piece-grid';
+  gridEl.style.gridTemplateRows = `repeat(${piece.shape.length}, ${cellSize}px)`;
+  gridEl.style.gridTemplateColumns = `repeat(${piece.shape[0].length}, ${cellSize}px)`;
+
+  for (let r = 0; r < piece.shape.length; r++) {
+    for (let c = 0; c < piece.shape[r].length; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'piece-cell';
+      cell.style.width = `${cellSize}px`;
+      cell.style.height = `${cellSize}px`;
+      if (piece.shape[r][c]) {
+        cell.style.background = piece.color;
+      }
+      gridEl.appendChild(cell);
     }
-    renderSlots();
-    msgEl.textContent = selectedSlot !== null ? '盤面の配置したいマスをタップしてください' : 'ブロックを選んで盤面に配置してください';
+  }
+  return gridEl;
+}
+
+// Setup Drag & Drop (Pointer Events for Touch & Mouse)
+slotsEls.forEach((slotEl, idx) => {
+  slotEl.addEventListener('pointerdown', (e) => {
+    if (isGameOver || !availablePieces[idx]) return;
+    e.preventDefault();
+    startDrag(idx, e.clientX, e.clientY);
   });
+});
+
+function startDrag(slotIdx, clientX, clientY) {
+  isDragging = true;
+  dragSlotIndex = slotIdx;
+  selectedSlot = slotIdx;
+  renderSlots();
+
+  const piece = availablePieces[slotIdx];
+  dragProxyEl.innerHTML = '';
+  const gridEl = createPieceGrid(piece, 34); // Larger size for dragging preview
+  dragProxyEl.appendChild(gridEl);
+  dragProxyEl.classList.remove('hidden');
+
+  updateDragPosition(clientX, clientY);
+}
+
+function updateDragPosition(clientX, clientY) {
+  dragX = clientX;
+  dragY = clientY;
+  dragProxyEl.style.left = `${clientX}px`;
+  dragProxyEl.style.top = `${clientY}px`;
+
+  // Find board cell under pointer
+  const boardRect = boardEl.getBoundingClientRect();
+  if (clientX >= boardRect.left && clientX <= boardRect.right &&
+      clientY >= boardRect.top && clientY <= boardRect.bottom) {
+    const cellSize = boardRect.width / BOARD_SIZE;
+    const hoverC = Math.floor((clientX - boardRect.left) / cellSize);
+    const hoverR = Math.floor((clientY - boardRect.top) / cellSize);
+
+    updateBoardPreview(dragSlotIndex, hoverR, hoverC);
+  } else {
+    clearPreview();
+  }
+}
+
+function endDrag() {
+  if (!isDragging) return;
+  isDragging = false;
+  dragProxyEl.classList.add('hidden');
+
+  const piece = availablePieces[dragSlotIndex];
+  if (!piece) {
+    clearPreview();
+    return;
+  }
+
+  const boardRect = boardEl.getBoundingClientRect();
+  if (dragX >= boardRect.left && dragX <= boardRect.right &&
+      dragY >= boardRect.top && dragY <= boardRect.bottom) {
+    const cellSize = boardRect.width / BOARD_SIZE;
+    const hoverC = Math.floor((dragX - boardRect.left) / cellSize);
+    const hoverR = Math.floor((dragY - boardRect.top) / cellSize);
+
+    // Calculate centered top-left placement
+    const startR = hoverR - Math.floor(piece.shape.length / 2);
+    const startC = hoverC - Math.floor(piece.shape[0].length / 2);
+
+    attemptPlacement(dragSlotIndex, startR, startC);
+  } else {
+    clearPreview();
+  }
+}
+
+window.addEventListener('pointermove', (e) => {
+  if (isDragging) {
+    updateDragPosition(e.clientX, e.clientY);
+  }
+});
+
+window.addEventListener('pointerup', () => {
+  if (isDragging) {
+    endDrag();
+  }
 });
 
 function getPlacementValidity(shape, startR, startC) {
@@ -200,21 +310,23 @@ function clearPreview() {
   });
 }
 
-function handleCellHover(r, c) {
-  if (selectedSlot === null || isGameOver) return;
+function updateBoardPreview(slotIdx, hoverR, hoverC) {
   clearPreview();
-
-  const piece = availablePieces[selectedSlot];
+  const piece = availablePieces[slotIdx];
   if (!piece) return;
 
-  const status = getPlacementValidity(piece.shape, r, c);
-  const className = status === 'OK' ? 'preview-valid' : 'preview-invalid';
+  // Center alignment offset calculation
+  const startR = hoverR - Math.floor(piece.shape.length / 2);
+  const startC = hoverC - Math.floor(piece.shape[0].length / 2);
+
+  const validity = getPlacementValidity(piece.shape, startR, startC);
+  const className = validity === 'OK' ? 'preview-valid' : 'preview-invalid';
 
   for (let pr = 0; pr < piece.shape.length; pr++) {
     for (let pc = 0; pc < piece.shape[pr].length; pc++) {
       if (piece.shape[pr][pc]) {
-        const br = r + pr;
-        const bc = c + pc;
+        const br = startR + pr;
+        const bc = startC + pc;
         if (br >= 0 && br < BOARD_SIZE && bc >= 0 && bc < BOARD_SIZE) {
           const targetCell = boardEl.children[br * BOARD_SIZE + bc];
           if (targetCell) targetCell.classList.add(className);
@@ -224,13 +336,11 @@ function handleCellHover(r, c) {
   }
 }
 
-function handleCellClick(r, c) {
-  if (selectedSlot === null || isGameOver) return;
-
-  const piece = availablePieces[selectedSlot];
+function attemptPlacement(slotIdx, startR, startC) {
+  const piece = availablePieces[slotIdx];
   if (!piece) return;
 
-  const validity = getPlacementValidity(piece.shape, r, c);
+  const validity = getPlacementValidity(piece.shape, startR, startC);
 
   if (validity !== 'OK') {
     if (validity === 'OVERFLOW') {
@@ -238,15 +348,16 @@ function handleCellClick(r, c) {
     } else if (validity === 'OVERLAP') {
       msgEl.textContent = '⚠️ 既存のブロックと重なっています！配置をキャンセルしました';
     }
+    clearPreview();
     return;
   }
 
-  // 1. Place Piece
+  // Place Piece
   let addedBlockCount = 0;
   for (let pr = 0; pr < piece.shape.length; pr++) {
     for (let pc = 0; pc < piece.shape[pr].length; pc++) {
       if (piece.shape[pr][pc]) {
-        board[r + pr][c + pc] = piece.color;
+        board[startR + pr][startC + pc] = piece.color;
         addedBlockCount++;
       }
     }
@@ -255,16 +366,16 @@ function handleCellClick(r, c) {
   score += addedBlockCount * 10;
   scoreEl.textContent = score;
 
-  availablePieces[selectedSlot] = null;
+  availablePieces[slotIdx] = null;
   selectedSlot = null;
   clearPreview();
   renderBoard();
   renderSlots();
 
-  // 2. Clear Lines
+  // Clear Lines
   checkAndClearLines();
 
-  // 3. Spawn or check next
+  // Spawn or check next
   if (availablePieces.every(p => p === null)) {
     spawnNewPieces();
   } else {
@@ -276,14 +387,12 @@ function checkAndClearLines() {
   const rowsToClear = [];
   const colsToClear = [];
 
-  // Rows
   for (let r = 0; r < BOARD_SIZE; r++) {
     if (board[r].every(cell => cell !== null)) {
       rowsToClear.push(r);
     }
   }
 
-  // Cols
   for (let c = 0; c < BOARD_SIZE; c++) {
     let full = true;
     for (let r = 0; r < BOARD_SIZE; r++) {
@@ -326,7 +435,7 @@ function checkAndClearLines() {
       renderBoard();
     }, 300);
   } else {
-    msgEl.textContent = 'ブロックを選んで盤面に配置してください';
+    msgEl.textContent = 'ブロックをドラッグ＆ドロップして盤面に配置してください';
   }
 
   if (score > bestScore) {

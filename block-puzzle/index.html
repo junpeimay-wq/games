@@ -14,10 +14,14 @@
     <div class="score-box highlight">最高: <span id="best">0</span></div>
   </div>
 
-  <div id="msg" class="message">ブロックを選んで盤面に配置してください</div>
+  <div id="msg" class="message">ブロックをドラッグ＆ドロップして盤面に配置してください</div>
 
   <div class="board" id="board">
-    <!-- 8x8 cells generated dynamically or static -->
+    <!-- 8x8 cells generated dynamically -->
+  </div>
+
+  <div class="controls-bar">
+    <button id="rotate-btn" class="rotate-btn">回転 🔄</button>
   </div>
 
   <div class="pieces-container" id="pieces-container">
@@ -27,6 +31,8 @@
   </div>
 
   <button id="reset-btn" class="reset-btn">リセット / もう一度遊ぶ</button>
+
+  <div id="drag-proxy" class="drag-proxy hidden"></div>
 
   <script src="game.js"></script>
 </body>
