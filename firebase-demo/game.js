@@ -1,184 +1,108 @@
-// ============================================================
-// game.js
-// UI操作・認証処理・Firestore 読み書き・ランキング表示
-// ============================================================
-
 import { auth, db } from './firebase-config.js';
 import {
   GoogleAuthProvider,
+  onAuthStateChanged,
   signInWithPopup,
-  signOut,
-  onAuthStateChanged
+  signOut
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
   collection,
-  addDoc,
-  query,
-  orderBy,
   limit,
   onSnapshot,
-  serverTimestamp,
+  orderBy,
+  query,
   where
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
-// ─── DOM ─────────────────────────────────────────────────────
-const loginBtn      = document.getElementById('login-btn');
-const logoutBtn     = document.getElementById('logout-btn');
-const userInfo      = document.getElementById('user-info');
-const userAvatar    = document.getElementById('user-avatar');
-const userName      = document.getElementById('user-name');
-const submitSection = document.getElementById('submit-section');
-const scoreInput    = document.getElementById('score-input');
-const gameSelect    = document.getElementById('game-select');
-const submitBtn     = document.getElementById('submit-btn');
-const submitMsg     = document.getElementById('submit-msg');
-const rankingList   = document.getElementById('ranking-list');
-const filterGame    = document.getElementById('filter-game');
-
-// ─── 認証状態管理 ─────────────────────────────────────────────
-let currentUser = null;
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const userInfo = document.getElementById('user-info');
+const userAvatar = document.getElementById('user-avatar');
+const userName = document.getElementById('user-name');
+const filterGame = document.getElementById('filter-game');
+const rankingList = document.getElementById('ranking-list');
+const rankingStatus = document.getElementById('ranking-status');
 
 onAuthStateChanged(auth, (user) => {
-  currentUser = user;
   if (user) {
-    userAvatar.src         = user.photoURL  || '';
+    userAvatar.src = user.photoURL || '';
     userAvatar.style.display = user.photoURL ? 'inline-block' : 'none';
-    userName.textContent   = user.displayName || user.email;
+    userName.textContent = user.displayName || user.email || 'プレイヤー';
     userInfo.classList.remove('hidden');
     loginBtn.classList.add('hidden');
     logoutBtn.classList.remove('hidden');
-    submitSection.classList.remove('hidden');
   } else {
     userInfo.classList.add('hidden');
     loginBtn.classList.remove('hidden');
     logoutBtn.classList.add('hidden');
-    submitSection.classList.add('hidden');
   }
 });
 
-// ─── Google ログイン ──────────────────────────────────────────
 loginBtn.addEventListener('click', async () => {
-  const provider = new GoogleAuthProvider();
   try {
-    await signInWithPopup(auth, provider);
-  } catch (err) {
-    console.error('Login error:', err);
-    submitMsg.textContent = `ログインエラー: ${err.message}`;
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (error) {
+    console.error('Login error:', error);
+    rankingStatus.textContent = `ログインエラー: ${error.message}`;
   }
 });
 
-// ─── ログアウト ───────────────────────────────────────────────
 logoutBtn.addEventListener('click', async () => {
-  await signOut(auth);
-});
-
-// ─── スコア送信 ───────────────────────────────────────────────
-submitBtn.addEventListener('click', async () => {
-  if (!currentUser) return;
-
-  const score = parseInt(scoreInput.value, 10);
-  const game  = gameSelect.value;
-
-  if (isNaN(score) || score < 0) {
-    submitMsg.textContent = '⚠️ 有効なスコアを入力してください';
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitMsg.textContent = '送信中...';
-
   try {
-    await addDoc(collection(db, 'scores'), {
-      uid:       currentUser.uid,
-      name:      currentUser.displayName || currentUser.email,
-      photoURL:  currentUser.photoURL || '',
-      game:      game,
-      score:     score,
-      createdAt: serverTimestamp()
-    });
-    submitMsg.textContent = '✅ スコアを登録しました！';
-    scoreInput.value = '';
-  } catch (err) {
-    console.error('Submit error:', err);
-    submitMsg.textContent = `❌ 送信エラー: ${err.message}`;
-  } finally {
-    submitBtn.disabled = false;
+    await signOut(auth);
+  } catch (error) {
+    console.error('Logout error:', error);
+    rankingStatus.textContent = `ログアウトエラー: ${error.message}`;
   }
 });
 
-// ─── リアルタイムランキング取得（onSnapshot） ─────────────────
 let unsubscribeRanking = null;
 
-function subscribeRanking(gameFilter) {
-  if (unsubscribeRanking) unsubscribeRanking(); // 前のリスナー解除
+function subscribeRanking(game) {
+  if (unsubscribeRanking) unsubscribeRanking();
+  rankingList.replaceChildren();
+  rankingList.innerHTML = '<li class="empty">読み込み中...</li>';
 
-  let q;
-  if (gameFilter === 'all') {
-    q = query(
-      collection(db, 'scores'),
-      orderBy('score', 'desc'),
-      limit(10)
-    );
-  } else {
-    q = query(
-      collection(db, 'scores'),
-      where('game', '==', gameFilter),
-      orderBy('score', 'desc'),
-      limit(10)
-    );
-  }
-
-  unsubscribeRanking = onSnapshot(q, (snapshot) => {
-    rankingList.innerHTML = '';
-
+  const scoresQuery = query(
+    collection(db, 'scores'),
+    where('game', '==', game),
+    orderBy('score', 'desc'),
+    limit(10)
+  );
+  unsubscribeRanking = onSnapshot(scoresQuery, (snapshot) => {
+    rankingList.replaceChildren();
     if (snapshot.empty) {
       rankingList.innerHTML = '<li class="empty">まだスコアがありません</li>';
       return;
     }
 
-    snapshot.forEach((doc, index) => {
-      const data = doc.data();
-      const li   = document.createElement('li');
-      const rank = rankingList.children.length + 1;
+    snapshot.docs.forEach((scoreDoc, index) => {
+      const score = scoreDoc.data();
+      const item = document.createElement('li');
+      const rank = index + 1;
+      item.className = rank <= 3 ? `rank-item top-${rank}` : 'rank-item';
 
-      const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-      const gameLabel = {
-        snake:        '🐍',
-        tictactoe:    '❌⭕',
-        'block-puzzle': '🧩'
-      }[data.game] || '🎮';
+      const medal = document.createElement('span');
+      medal.className = 'rank-medal';
+      medal.textContent = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
+      const name = document.createElement('span');
+      name.className = 'rank-name';
+      name.textContent = score.name || 'プレイヤー';
+      const points = document.createElement('span');
+      points.className = 'rank-score';
+      points.textContent = Number(score.score).toLocaleString();
 
-      li.className = rank <= 3 ? `rank-item top-${rank}` : 'rank-item';
-      li.innerHTML = `
-        <span class="rank-medal">${medal}</span>
-        <img class="rank-avatar" src="${data.photoURL || ''}" alt=""
-             onerror="this.style.display='none'"
-             ${data.photoURL ? '' : 'style="display:none"'}>
-        <span class="rank-name">${escapeHtml(data.name)}</span>
-        <span class="rank-game">${gameLabel}</span>
-        <span class="rank-score">${data.score.toLocaleString()}</span>
-      `;
-      rankingList.appendChild(li);
+      item.append(medal, name, points);
+      rankingList.appendChild(item);
     });
-  }, (err) => {
-    console.error('Ranking error:', err);
-    rankingList.innerHTML = `<li class="empty">ランキング取得エラー: ${err.message}</li>`;
+  }, (error) => {
+    console.error('Ranking error:', error);
+    const item = document.createElement('li');
+    item.className = 'empty';
+    item.textContent = `ランキング取得エラー: ${error.message}`;
+    rankingList.replaceChildren(item);
   });
 }
 
-// ─── フィルター変更 ───────────────────────────────────────────
-filterGame.addEventListener('change', () => {
-  subscribeRanking(filterGame.value);
-});
-
-// ─── XSS対策 ─────────────────────────────────────────────────
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// ─── 初期ランキング読み込み ───────────────────────────────────
-subscribeRanking('all');
+filterGame.addEventListener('change', () => subscribeRanking(filterGame.value));
+subscribeRanking(filterGame.value);

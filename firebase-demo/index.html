@@ -20,6 +20,7 @@
   <header>
     <h1>🏆 グローバルランキング</h1>
     <a class="back-link" href="../index.html">← アーケードへ戻る</a>
+    <a class="back-link" href="../ranking/index.html">ゲーム別ランキング</a>
   </header>
 
   <!-- 認証エリア -->
@@ -35,19 +36,11 @@
     </div>
   </section>
 
-  <!-- スコア送信エリア（ログイン時のみ表示） -->
-  <section id="submit-section" class="submit-section hidden">
-    <h2>スコアを登録</h2>
-    <div class="submit-form">
-      <select id="game-select" class="input-field">
-        <option value="snake">🐍 スネークゲーム</option>
-        <option value="tictactoe">❌⭕ 戦略的〇×</option>
-        <option value="block-puzzle">🧩 8x8ブロックパズル</option>
-      </select>
-      <input id="score-input" class="input-field" type="number" min="0" placeholder="スコアを入力" />
-      <button id="submit-btn" class="btn btn-submit">送信</button>
-    </div>
-    <p id="submit-msg" class="submit-msg"></p>
+  <!-- ゲーム本編からのスコア自動送信を確認するための共通基盤 -->
+  <section class="submit-section">
+    <h2>ゲームスコアの記録</h2>
+    <p>スコアは各ゲームでハイスコアを更新したときに自動で送信されます。手入力はできません。記録にはGoogle認証が必要です。</p>
+    <p id="ranking-status" class="submit-msg" aria-live="polite"></p>
   </section>
 
   <!-- ランキングエリア -->
@@ -55,7 +48,6 @@
     <div class="ranking-header">
       <h2>TOP 10</h2>
       <select id="filter-game" class="input-field filter-select">
-        <option value="all">🎮 全ゲーム</option>
         <option value="snake">🐍 スネーク</option>
         <option value="tictactoe">❌⭕ 〇×ゲーム</option>
         <option value="block-puzzle">🧩 ブロックパズル</option>

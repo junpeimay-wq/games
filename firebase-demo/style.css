@@ -85,20 +85,6 @@ h2 {
   color: #1a1a2e;
 }
 
-.btn-submit {
-  background: #16213e;
-  color: #00ff88;
-  border-color: #00ff88;
-}
-.btn-submit:hover {
-  background: #00ff88;
-  color: #1a1a2e;
-}
-.btn-submit:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 /* ─── Auth Section ──────────────────────────────────────── */
 .auth-section {
   max-width: 600px;
@@ -137,13 +123,6 @@ h2 {
   padding: 20px;
 }
 
-.submit-form {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
 .input-field {
   background: #0f172a;
   color: #eee;
@@ -157,10 +136,6 @@ h2 {
 .input-field:focus {
   outline: none;
   border-color: #00ff88;
-}
-
-#score-input {
-  width: 140px;
 }
 
 .submit-msg {

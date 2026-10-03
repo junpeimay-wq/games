@@ -61,8 +61,7 @@ const firebaseConfig = {
 
 1. Firebase Console 左メニュー **「Firestore Database」** を開く
 2. **「データベースを作成」** をクリック
-3. **「本番環境で開始」** または **「テストモードで開始」** を選択
-   - まずはテストモード（30日間は誰でも読み書き可能）でOK
+3. **「本番環境で開始」** を選択
 4. ロケーションは **`asia-northeast1`**（東京）を選択
 5. **「有効にする」**
 
@@ -72,7 +71,8 @@ const firebaseConfig = {
 
 ```bash
 cd ~/games/firebase-demo
-npx firebase-tools deploy --only firestore:rules --project <FirebaseのプロジェクトID>
+npx firebase-tools login
+npx firebase-tools deploy --only firestore
 ```
 
 Firestore Emulatorで許可・拒否のテストを実行できます（Node.js 22以上、npm、Javaが必要です）。
@@ -83,7 +83,7 @@ npm ci
 npm test
 ```
 
-このルールは投稿者とデータ形式を制限しますが、ブラウザーから送信されるスコア自体の正当性までは検証できません。不正スコアも防ぎたい場合は、信頼できるサーバー側でスコアを検証してください。
+このルールは公開読み取りを許可し、認証済みユーザー自身のゲーム別スコア文書について、初回登録と自己ベストを超える更新だけを許可します。データ形式・ゲーム識別子・スコア・サーバー時刻を検証します。ブラウザーから送信されるスコア自体の正当性までは検証できないため、不正スコアも防ぎたい場合は、信頼できるサーバー側でスコアを検証してください。
 
 ---
 
@@ -115,14 +115,18 @@ git push
 
 ```
 scores（コレクション）
-  └─ {自動ID}
+  └─ {game}_{Firebase Auth UID}
        ├─ uid:       string    ユーザーID（Firebase Auth UID）
        ├─ name:      string    表示名（Googleアカウント名）
        ├─ photoURL:  string    アバター画像URL
        ├─ game:      string    ゲーム識別子 (snake / tictactoe / block-puzzle)
        ├─ score:     number    スコア
-       └─ createdAt: timestamp 送信日時
+       └─ updatedAt: timestamp ハイスコア更新日時
 ```
+
+ゲームがハイスコアを更新した場合にのみ、ゲーム本編から自動送信します。認証前のユーザーには保存確認とGoogle認証を案内し、認証済みなら確認なしで記録します。採点基準が異なるためランキングはゲーム別で表示し、全ゲーム合計は作成しません。
+
+ランキングページ: [`../ranking/`](../ranking/index.html)
 
 ---
 

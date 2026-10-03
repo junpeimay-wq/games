@@ -14,9 +14,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>❌⭕ 戦略的〇×ゲーム</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../firebase-demo/shared-score.css">
 </head>
 <body>
   <h1>❌⭕ 戦略的〇×ゲーム</h1>
+  <div class="streak-container">
+    連勝: <span id="current-streak">0</span>　最高連勝: <span id="best-streak">0</span>
+  </div>
+  <a class="ranking-link" href="../ranking/tictactoe.html">🏆 連勝ランキング</a>
+  <p id="ranking-status" class="ranking-status" aria-live="polite"></p>
   
   <div class="status-container">
     <div class="player-status player-o">
@@ -45,6 +51,6 @@
 
   <button id="reset-btn" class="reset-btn">リセット / もう一度遊ぶ</button>
 
-  <script src="game.js"></script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>

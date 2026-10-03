@@ -14,9 +14,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🧩 8x8ブロックパズル</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../firebase-demo/shared-score.css">
 </head>
 <body>
   <h1>🧩 8x8ブロックパズル</h1>
+  <a class="ranking-link" href="../ranking/block-puzzle.html">🏆 ランキング</a>
+  <p id="ranking-status" class="ranking-status" aria-live="polite"></p>
 
   <div class="score-container">
     <div class="score-box">スコア: <span id="score">0</span></div>
@@ -39,6 +42,6 @@
 
   <div id="drag-proxy" class="drag-proxy hidden"></div>
 
-  <script src="game.js"></script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>

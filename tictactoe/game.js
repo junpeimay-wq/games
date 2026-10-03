@@ -1,8 +1,13 @@
+import { recordHighScore } from '../firebase-demo/score-service.js';
+import { nextTicTacToeStreak } from '../firebase-demo/score-utils.js';
+
 let board = Array(9).fill(null);
 let playerOverwrites = 1;
 let cpuOverwrites = 1;
 let isGameOver = false;
 let isCpuTurn = false;
+let currentStreak = Number.parseInt(localStorage.getItem('tictactoe-current-streak') || '0', 10);
+let bestStreak = Number.parseInt(localStorage.getItem('tictactoe-best-streak') || '0', 10);
 
 const WINNING_COMBOS = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
@@ -15,6 +20,13 @@ const msgEl = document.getElementById('msg');
 const playerChargesEl = document.getElementById('player-charges');
 const cpuChargesEl = document.getElementById('cpu-charges');
 const resetBtn = document.getElementById('reset-btn');
+const currentStreakEl = document.getElementById('current-streak');
+const bestStreakEl = document.getElementById('best-streak');
+
+function updateStreakDisplay() {
+  currentStreakEl.textContent = currentStreak;
+  bestStreakEl.textContent = bestStreak;
+}
 
 function initGame() {
   board = Array(9).fill(null);
@@ -26,6 +38,7 @@ function initGame() {
   playerChargesEl.textContent = playerOverwrites;
   cpuChargesEl.textContent = cpuOverwrites;
   msgEl.textContent = 'あなたの番です (〇)';
+  updateStreakDisplay();
 
   cells.forEach(cell => {
     cell.textContent = '';
@@ -246,11 +259,25 @@ function endGame(result, winCombo = null) {
 
   if (result === 'O') {
     msgEl.textContent = '🎉 あなたの勝利です！(〇)';
+    currentStreak = nextTicTacToeStreak(result, currentStreak);
+    localStorage.setItem('tictactoe-current-streak', String(currentStreak));
+    if (currentStreak > bestStreak) {
+      bestStreak = currentStreak;
+      localStorage.setItem('tictactoe-best-streak', String(bestStreak));
+      recordHighScore('tictactoe', bestStreak).catch((error) => {
+        console.error('Tic-tac-toe ranking error:', error);
+      });
+    }
   } else if (result === 'X') {
     msgEl.textContent = '💀 CPUの勝利です！(×)';
+    currentStreak = nextTicTacToeStreak(result, currentStreak);
+    localStorage.setItem('tictactoe-current-streak', '0');
   } else {
     msgEl.textContent = '🤝 引き分けです！';
+    currentStreak = nextTicTacToeStreak(result, currentStreak);
+    localStorage.setItem('tictactoe-current-streak', '0');
   }
+  updateStreakDisplay();
 }
 
 cells.forEach((cell, idx) => {

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>❌⭕ 〇×ゲームランキング - GAME ARCADE</title>
+  <link rel="stylesheet" href="ranking.css">
+</head>
+<body data-game="tictactoe">
+  <header>
+    <h1>❌⭕ 〇×ゲーム ランキング</h1>
+    <a href="../tictactoe/index.html">← 〇×ゲームへ戻る</a>
+  </header>
+  <main>
+    <nav class="ranking-nav" aria-label="ランキング">
+      <a href="index.html">全ゲーム</a>
+      <a href="snake.html">スネークゲーム</a>
+      <a href="block-puzzle.html">ブロックパズル</a>
+    </nav>
+    <p class="intro">〇×ゲームの連勝数ランキングです。敗北または引き分けで連勝数はリセットされます。</p>
+    <ol class="ranking-list" id="ranking-list" aria-live="polite">
+      <li class="empty">読み込み中...</li>
+    </ol>
+    <p id="ranking-error" class="error" role="status"></p>
+  </main>
+  <script type="module" src="ranking.js"></script>
+</body>
+</html>

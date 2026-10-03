@@ -22,6 +22,12 @@ h1 {
   text-align: center;
 }
 
+.streak-container {
+  margin: 0 0 8px;
+  color: #ffb703;
+  font-weight: bold;
+}
+
 .status-container {
   display: flex;
   justify-content: space-between;

@@ -12,10 +12,14 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
+  query,
   serverTimestamp,
   setDoc,
   Timestamp,
-  updateDoc
+  updateDoc,
+  where
 } from 'firebase/firestore';
 
 let testEnv;
@@ -40,7 +44,7 @@ function scoreData(uid, overrides = {}) {
     photoURL: '',
     game: 'snake',
     score: 123,
-    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
     ...overrides
   };
 }
@@ -56,6 +60,12 @@ test('allows public score reads', async () => {
   const db = testEnv.unauthenticatedContext().firestore();
   await assertSucceeds(getDoc(doc(db, 'scores', 'public-score')));
   await assertSucceeds(getDocs(collection(db, 'scores')));
+  await assertSucceeds(getDocs(query(
+    collection(db, 'scores'),
+    where('game', '==', 'snake'),
+    orderBy('score', 'desc'),
+    limit(10)
+  )));
 });
 
 test('allows an authenticated user to create a valid score for their UID', async () => {
@@ -64,7 +74,7 @@ test('allows an authenticated user to create a valid score for their UID', async
 
   for (const game of ['snake', 'tictactoe', 'block-puzzle']) {
     await assertSucceeds(
-      setDoc(doc(db, 'scores', `valid-${game}`), scoreData(uid, { game }))
+      setDoc(doc(db, 'scores', `${game}_${uid}`), scoreData(uid, { game }))
     );
   }
 });
@@ -72,21 +82,23 @@ test('allows an authenticated user to create a valid score for their UID', async
 test('rejects unauthenticated creates and UID spoofing', async () => {
   const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
   await assertFails(
-    setDoc(doc(unauthenticatedDb, 'scores', 'anonymous-score'), scoreData('anonymous'))
+    setDoc(doc(unauthenticatedDb, 'scores', 'snake_anonymous'), scoreData('anonymous'))
   );
 
   const db = testEnv.authenticatedContext('actual-user').firestore();
   await assertFails(
-    setDoc(doc(db, 'scores', 'spoofed-score'), scoreData('different-user'))
+    setDoc(doc(db, 'scores', 'snake_different-user'), scoreData('different-user'))
+  );
+  await assertFails(
+    setDoc(doc(db, 'scores', 'spoofed-id'), scoreData('actual-user'))
   );
 });
 
 test('rejects missing or unexpected fields and invalid score data', async () => {
-  const uid = 'score-owner';
-  const db = testEnv.authenticatedContext(uid).firestore();
+  const ownerUid = 'score-owner';
   const invalidEntries = [
     ['missing-uid', ({ uid: _uid, ...data }) => data],
-    ['missing-field', ({ createdAt, ...data }) => data],
+    ['missing-field', ({ updatedAt, ...data }) => data],
     ['unexpected-field', (data) => ({ ...data, extra: true })],
     ['invalid-name', (data) => ({ ...data, name: 42 })],
     ['invalid-photo-url', (data) => ({ ...data, photoURL: null })],
@@ -94,29 +106,49 @@ test('rejects missing or unexpected fields and invalid score data', async () => 
     ['negative-score', (data) => ({ ...data, score: -1 })],
     ['fractional-score', (data) => ({ ...data, score: 1.5 })],
     ['string-score', (data) => ({ ...data, score: '123' })],
-    ['invalid-timestamp', (data) => ({ ...data, createdAt: 'not-a-timestamp' })],
+    ['invalid-timestamp', (data) => ({ ...data, updatedAt: 'not-a-timestamp' })],
     ['forged-timestamp', (data) => ({
       ...data,
-      createdAt: Timestamp.fromMillis(1)
+      updatedAt: Timestamp.fromMillis(1)
     })]
   ];
 
   for (const [id, mutate] of invalidEntries) {
-    await assertFails(setDoc(doc(db, 'scores', id), mutate(scoreData(uid))));
+    const uid = `${ownerUid}-${id}`;
+    const db = testEnv.authenticatedContext(uid).firestore();
+    await assertFails(
+      setDoc(doc(db, 'scores', `snake_${uid}`), mutate(scoreData(uid)))
+    );
   }
 });
 
-test('rejects updates and deletes, including by the score owner', async () => {
+test('allows only the owner to update their score to a strictly higher value', async () => {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await setDoc(
-      doc(context.firestore(), 'scores', 'immutable-score'),
+      doc(context.firestore(), 'scores', 'snake_score-owner'),
       scoreData('score-owner')
     );
   });
 
   const db = testEnv.authenticatedContext('score-owner').firestore();
-  const scoreRef = doc(db, 'scores', 'immutable-score');
-  await assertFails(setDoc(scoreRef, scoreData('score-owner')));
+  const scoreRef = doc(db, 'scores', 'snake_score-owner');
+  await assertSucceeds(setDoc(scoreRef, scoreData('score-owner', { score: 124 })));
+  await assertFails(setDoc(scoreRef, scoreData('score-owner', { score: 124 })));
+  await assertFails(setDoc(scoreRef, scoreData('score-owner', { score: 100 })));
+  await assertFails(
+    setDoc(scoreRef, scoreData('different-user', { score: 999 }))
+  );
   await assertFails(updateDoc(scoreRef, { score: 999 }));
-  await assertFails(deleteDoc(scoreRef));
+});
+
+test('rejects deletes, including by the score owner', async () => {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), 'scores', 'snake_score-owner'),
+      scoreData('score-owner')
+    );
+  });
+
+  const db = testEnv.authenticatedContext('score-owner').firestore();
+  await assertFails(deleteDoc(doc(db, 'scores', 'snake_score-owner')));
 });

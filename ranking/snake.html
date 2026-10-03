@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐍 スネークランキング - GAME ARCADE</title>
+  <link rel="stylesheet" href="ranking.css">
+</head>
+<body data-game="snake">
+  <header>
+    <h1>🐍 スネークゲーム ランキング</h1>
+    <a href="../snake/index.html">← スネークゲームへ戻る</a>
+  </header>
+  <main>
+    <nav class="ranking-nav" aria-label="ランキング">
+      <a href="index.html">全ゲーム</a>
+      <a href="tictactoe.html">〇×ゲーム</a>
+      <a href="block-puzzle.html">ブロックパズル</a>
+    </nav>
+    <p class="intro">スネークゲームで更新したハイスコアを表示します。</p>
+    <ol class="ranking-list" id="ranking-list" aria-live="polite">
+      <li class="empty">読み込み中...</li>
+    </ol>
+    <p id="ranking-error" class="error" role="status"></p>
+  </main>
+  <script type="module" src="ranking.js"></script>
+</body>
+</html>

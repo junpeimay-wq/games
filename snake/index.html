@@ -14,10 +14,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🐍 スネークゲーム</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../firebase-demo/shared-score.css">
 </head>
 <body>
   <h1>🐍 スネークゲーム</h1>
   <div id="info">スコア: <span id="score">0</span>　最高: <span id="best">0</span></div>
+  <a class="ranking-link" href="../ranking/snake.html">🏆 ランキング</a>
+  <p id="ranking-status" class="ranking-status" aria-live="polite"></p>
   <canvas id="c" width="400" height="400"></canvas>
   <div id="msg">タップ or スペースでスタート</div>
   <div id="dpad">
@@ -30,6 +33,6 @@
       <button id="btn-right">▶</button>
     </div>
   </div>
-  <script src="game.js"></script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>

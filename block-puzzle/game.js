@@ -1,7 +1,10 @@
+import { recordHighScore } from '../firebase-demo/score-service.js';
+
 const BOARD_SIZE = 8;
 let board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
 let score = 0;
 let bestScore = 0;
+let newHighScoreThisGame = false;
 let availablePieces = [null, null, null];
 let isGameOver = false;
 
@@ -82,6 +85,7 @@ function initGame() {
   board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
   score = 0;
   isGameOver = false;
+  newHighScoreThisGame = false;
 
   scoreEl.textContent = 0;
   msgEl.textContent = '💡 候補をタップで回転、ドラッグで盤面へ配置';
@@ -447,6 +451,7 @@ function checkAndClearLines() {
     bestScore = score;
     bestEl.textContent = bestScore;
     saveBestScore(bestScore);
+    newHighScoreThisGame = true;
   }
 }
 
@@ -467,6 +472,12 @@ function checkGameOver() {
   if (!canMoveAny) {
     isGameOver = true;
     msgEl.textContent = '💀 ゲームオーバー！置けるマスがありません';
+    if (newHighScoreThisGame) {
+      newHighScoreThisGame = false;
+      recordHighScore('block-puzzle', score).catch((error) => {
+        console.error('Block puzzle ranking error:', error);
+      });
+    }
   }
 }
 

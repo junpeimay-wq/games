@@ -1,3 +1,5 @@
+import { recordHighScore } from '../firebase-demo/score-service.js';
+
 const C = document.getElementById('c');
 const ctx = C.getContext('2d');
 const SZ = 20, COLS = 20, ROWS = 20;
@@ -69,6 +71,9 @@ function step() {
       best = score;
       document.getElementById('best').textContent = best;
       saveBestScore(best);
+      recordHighScore('snake', score).catch((error) => {
+        console.error('Snake ranking error:', error);
+      });
     }
     
     document.getElementById('msg').textContent = '💀 ゲームオーバー！タップ or スペースで再スタート';
