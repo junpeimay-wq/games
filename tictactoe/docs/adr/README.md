@@ -11,6 +11,7 @@
 | [0003](0003-single-overwrite-rule.md) | 上書き上限回数を1回に変更 | 承認済み |
 | [0004](0004-overwrite-threat-detection.md) | プレイヤーの上書き勝利を含むリーチ検出の強化 | 承認済み |
 | [0005](0005-overwrite-conservation-strategy.md) | 初手・序盤における上書き権利の温存戦略の導入 | 承認済み |
+| [0006](0006-square-game-favicon.md) | 〇×ゲームの正方形ファビコン | 承認済み |
 
 ## 新しいADRの追加方法
 
