@@ -1,4 +1,9 @@
 import { recordHighScore } from '../firebase-demo/score-service.js';
+import {
+  getPerfectClearBonus,
+  hasAnyValidMove,
+  rotateMatrixClockwise as rotateShapeMatrix
+} from './game-logic.js';
 
 const BOARD_SIZE = 8;
 let board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
@@ -70,7 +75,12 @@ const SHAPES = [
   { shape: [[1, 1], [0, 1]], color: '#3b82f6' },
   // Corner 3x3
   { shape: [[1, 0, 0], [1, 0, 0], [1, 1, 1]], color: '#10b981' },
-  { shape: [[0, 0, 1], [0, 0, 1], [1, 1, 1]], color: '#10b981' }
+  { shape: [[0, 0, 1], [0, 0, 1], [1, 1, 1]], color: '#10b981' },
+  // Diagonal pieces
+  { shape: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], color: '#f472b6' },
+  { shape: [[0, 0, 1], [0, 1, 0], [1, 0, 0]], color: '#f472b6' },
+  { shape: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], color: '#c084fc' },
+  { shape: [[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]], color: '#c084fc' }
 ];
 
 const boardEl = document.getElementById('board');
@@ -120,21 +130,9 @@ function spawnNewPieces() {
   checkGameOver();
 }
 
-function rotateMatrixClockwise(matrix) {
-  const rows = matrix.length;
-  const cols = matrix[0].length;
-  const rotated = Array(cols).fill(null).map(() => Array(rows).fill(0));
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      rotated[c][rows - 1 - r] = matrix[r][c];
-    }
-  }
-  return rotated;
-}
-
 function rotatePiece(piece) {
   if (!piece) return;
-  piece.shape = rotateMatrixClockwise(piece.shape);
+  piece.shape = rotateShapeMatrix(piece.shape);
 }
 
 function renderSlots() {
@@ -311,10 +309,6 @@ function getPlacementValidity(shape, startR, startC) {
   return 'OK';
 }
 
-function canPlace(shape, startR, startC) {
-  return getPlacementValidity(shape, startR, startC) === 'OK';
-}
-
 function clearPreview() {
   document.querySelectorAll('.cell').forEach(c => {
     c.classList.remove('preview-valid', 'preview-invalid');
@@ -417,13 +411,6 @@ function checkAndClearLines() {
   if (totalLines > 0) {
     const lineScore = totalLines * 100 * totalLines;
     score += lineScore;
-    scoreEl.textContent = score;
-
-    if (totalLines >= 2) {
-      msgEl.textContent = `🔥 ${totalLines}ライン同時消去！ボーナス +${lineScore}点！`;
-    } else {
-      msgEl.textContent = `✨ ライン消去！ +${lineScore}点！`;
-    }
 
     const cellsToClear = new Set();
     rowsToClear.forEach(r => {
@@ -440,6 +427,21 @@ function checkAndClearLines() {
       board[r][c] = null;
     });
 
+    const perfectClearBonus = getPerfectClearBonus(board);
+    if (perfectClearBonus > 0) {
+      score += perfectClearBonus;
+      msgEl.textContent = `🌟 PERFECT CLEAR！全消しボーナス +${perfectClearBonus}点！`;
+      boardEl.classList.remove('perfect-clear');
+      void boardEl.offsetWidth;
+      boardEl.classList.add('perfect-clear');
+      setTimeout(() => boardEl.classList.remove('perfect-clear'), 1500);
+    } else if (totalLines >= 2) {
+      msgEl.textContent = `🔥 ${totalLines}ライン同時消去！ボーナス +${lineScore}点！`;
+    } else {
+      msgEl.textContent = `✨ ライン消去！ +${lineScore}点！`;
+    }
+    scoreEl.textContent = score;
+
     setTimeout(() => {
       renderBoard();
     }, 300);
@@ -455,20 +457,11 @@ function checkAndClearLines() {
   }
 }
 
-function canFitAnywhere(shape) {
-  for (let r = 0; r <= BOARD_SIZE - shape.length; r++) {
-    for (let c = 0; c <= BOARD_SIZE - shape[0].length; c++) {
-      if (canPlace(shape, r, c)) return true;
-    }
-  }
-  return false;
-}
-
 function checkGameOver() {
   const activePieces = availablePieces.filter(p => p !== null);
   if (activePieces.length === 0) return;
 
-  const canMoveAny = activePieces.some(p => canFitAnywhere(p.shape));
+  const canMoveAny = hasAnyValidMove(board, activePieces);
   if (!canMoveAny) {
     isGameOver = true;
     msgEl.textContent = '💀 ゲームオーバー！置けるマスがありません';

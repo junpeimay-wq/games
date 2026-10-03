@@ -13,11 +13,35 @@
   </header>
   <main>
     <p class="intro">採点基準が異なるため、ランキングはゲームごとに表示します。</p>
-    <nav class="game-list" aria-label="ゲーム別ランキング">
-      <a href="snake.html">🐍 スネークゲームのランキング</a>
-      <a href="tictactoe.html">❌⭕ 〇×ゲームのランキング（連勝数）</a>
-      <a href="block-puzzle.html">🧩 ブロックパズルのランキング</a>
-    </nav>
+    <section class="game-ranking" data-game="snake">
+      <header class="game-ranking-header">
+        <h2>🐍 スネークゲーム Top 3</h2>
+        <a href="snake.html">Top 10 →</a>
+      </header>
+      <ol class="ranking-list" aria-label="スネークゲーム Top 3">
+        <li class="empty">読み込み中...</li>
+      </ol>
+    </section>
+    <section class="game-ranking" data-game="tictactoe">
+      <header class="game-ranking-header">
+        <h2>❌⭕ 〇×ゲーム Top 3（連勝数）</h2>
+        <a href="tictactoe.html">Top 10 →</a>
+      </header>
+      <ol class="ranking-list" aria-label="〇×ゲーム Top 3">
+        <li class="empty">読み込み中...</li>
+      </ol>
+    </section>
+    <section class="game-ranking" data-game="block-puzzle">
+      <header class="game-ranking-header">
+        <h2>🧩 ブロックパズル Top 3</h2>
+        <a href="block-puzzle.html">Top 10 →</a>
+      </header>
+      <ol class="ranking-list" aria-label="ブロックパズル Top 3">
+        <li class="empty">読み込み中...</li>
+      </ol>
+    </section>
+    <p id="ranking-error" class="error" role="status"></p>
   </main>
+  <script type="module" src="index.js"></script>
 </body>
 </html>

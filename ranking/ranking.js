@@ -17,7 +17,7 @@ const scoresQuery = query(
   collection(db, 'scores'),
   where('game', '==', game),
   orderBy('score', 'desc'),
-  limit(100)
+  limit(10)
 );
 
 onSnapshot(scoresQuery, (snapshot) => {
