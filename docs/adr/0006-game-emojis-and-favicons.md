@@ -28,3 +28,7 @@
 ## トレードオフ
 - 〇だけの表示では×の存在までは表せないが、ゲーム名の「〇×」表記と内容説明で補う。
 - Googleはサイトごとに1つのファビコンを選択し、正方形のアイコンを再クロール後に検索結果へ反映する。GitHub Pagesのプロジェクトサイトはホスト名のサブディレクトリ（`/games/`）にあるため、ホスト単位のGoogle検索ファビコンとして必ず採用される保証はない。また、Googleが表示するか、いつ更新するかは制御できない。
+
+## 参考
+- [Google Search Central: Define a favicon to show in search results](https://developers.google.com/search/docs/appearance/favicon-in-search)
+- [Apple: Configuring Web Applications](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html)
