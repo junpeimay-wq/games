@@ -13,6 +13,7 @@ import {
   query,
   where
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { createAvatarElement } from './avatar.js';
 import { formatScore, rankScores } from './score-utils.js';
 
 const loginBtn = document.getElementById('login-btn');
@@ -89,11 +90,12 @@ function subscribeRanking(game) {
       const name = document.createElement('span');
       name.className = 'rank-name';
       name.textContent = score.name || 'プレイヤー';
+      const avatar = createAvatarElement(score.photoURL);
       const points = document.createElement('span');
       points.className = 'rank-score';
       points.textContent = formatScore(score.score);
 
-      item.append(medal, name, points);
+      item.append(medal, avatar, name, points);
       rankingList.appendChild(item);
     });
   }, (error) => {

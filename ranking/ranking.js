@@ -7,6 +7,7 @@ import {
   query,
   where
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { createAvatarElement } from '../firebase-demo/avatar.js';
 import { formatScore, rankScores } from '../firebase-demo/score-utils.js';
 
 const game = document.body.dataset.game;
@@ -42,11 +43,12 @@ onSnapshot(scoresQuery, (snapshot) => {
     const player = document.createElement('span');
     player.className = 'player-name';
     player.textContent = score.name || 'プレイヤー';
+    const avatar = createAvatarElement(score.photoURL);
     const points = document.createElement('span');
     points.className = 'points';
     points.textContent = formatScore(score.score);
 
-    item.append(rank, player, points);
+    item.append(rank, avatar, player, points);
     list.appendChild(item);
   });
 }, (reason) => {
