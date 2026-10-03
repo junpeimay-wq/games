@@ -10,7 +10,7 @@
 |--------|------|--------|
 | 🐍 スネーク | 食べ物を食べて長くなれ！ | [遊ぶ](https://junpeimay-wq.github.io/games/snake/index.html) |
 | ❌⭕ 戦略的〇×ゲーム | 相手の駒を1回だけ上書きできる思考型マルバツゲーム | [遊ぶ](https://junpeimay-wq.github.io/games/tictactoe/index.html) |
-| 🧩 8x8ブロックパズル | ブロックを配置して縦横ライン消去！同時消しボーナス＆ハイスコア保存機能 | [遊ぶ](https://junpeimay-wq.github.io/games/block-puzzle/index.html) |
+| 🧩 8x8ブロックパズル | ブロックを配置して縦横ライン消去！同時消しボーナス付き | [遊ぶ](https://junpeimay-wq.github.io/games/block-puzzle/index.html) |
 
 ## 操作方法
 
