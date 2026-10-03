@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/</loc>
+  </url>
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/snake/</loc>
+  </url>
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/tictactoe/</loc>
+  </url>
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/block-puzzle/</loc>
+  </url>
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/ranking/</loc>
+  </url>
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/ranking/snake.html</loc>
+  </url>
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/ranking/tictactoe.html</loc>
+  </url>
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/ranking/block-puzzle.html</loc>
+  </url>
+</urlset>

@@ -8,3 +8,4 @@
 |-----|---------|-----------|
 | [0001](0001-game-scores-and-rankings.md) | Google認証を用いたゲーム別ハイスコアとランキング | 承認済み |
 | [0002](0002-ranking-previews.md) | ランキング一覧のゲーム別Top 3表示 | 承認済み |
+| [0003](0003-sitemap-and-adr-exclusion.md) | Search Console向けサイトマップとADRの公開除外 | 承認済み |

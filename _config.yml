@@ -1,2 +1,10 @@
-plugins:
-  - jekyll-sitemap
+url: https://junpeimay-wq.github.io
+baseurl: /games
+
+exclude:
+  - AGENTS.md
+  - docs/adr
+  - block-puzzle/docs/adr
+  - firebase-demo/docs/adr
+  - snake/docs/adr
+  - tictactoe/docs/adr
