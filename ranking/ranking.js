@@ -7,6 +7,7 @@ import {
   query,
   where
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { formatScore, rankScores } from '../firebase-demo/score-utils.js';
 
 const game = document.body.dataset.game;
 const list = document.getElementById('ranking-list');
@@ -30,20 +31,20 @@ onSnapshot(scoresQuery, (snapshot) => {
     return;
   }
 
-  snapshot.forEach((scoreDoc, index) => {
-    const score = scoreDoc.data();
+  const scores = rankScores(snapshot.docs.map((scoreDoc) => scoreDoc.data()));
+  scores.forEach((score) => {
     const item = document.createElement('li');
-    item.className = index < 3 ? `rank-item top-${index + 1}` : 'rank-item';
+    item.className = score.rank <= 3 ? `rank-item top-${score.rank}` : 'rank-item';
 
     const rank = document.createElement('span');
     rank.className = 'rank-number';
-    rank.textContent = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+    rank.textContent = score.rank === 1 ? '🥇' : score.rank === 2 ? '🥈' : score.rank === 3 ? '🥉' : `${score.rank}.`;
     const player = document.createElement('span');
     player.className = 'player-name';
     player.textContent = score.name || 'プレイヤー';
     const points = document.createElement('span');
     points.className = 'points';
-    points.textContent = Number(score.score).toLocaleString();
+    points.textContent = formatScore(score.score);
 
     item.append(rank, player, points);
     list.appendChild(item);

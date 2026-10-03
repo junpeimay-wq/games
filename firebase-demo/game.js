@@ -13,6 +13,7 @@ import {
   query,
   where
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { formatScore, rankScores } from './score-utils.js';
 
 const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
@@ -76,10 +77,10 @@ function subscribeRanking(game) {
       return;
     }
 
-    snapshot.docs.forEach((scoreDoc, index) => {
-      const score = scoreDoc.data();
+    const scores = rankScores(snapshot.docs.map((scoreDoc) => scoreDoc.data()));
+    scores.forEach((score) => {
       const item = document.createElement('li');
-      const rank = index + 1;
+      const rank = score.rank;
       item.className = rank <= 3 ? `rank-item top-${rank}` : 'rank-item';
 
       const medal = document.createElement('span');
@@ -90,7 +91,7 @@ function subscribeRanking(game) {
       name.textContent = score.name || 'プレイヤー';
       const points = document.createElement('span');
       points.className = 'rank-score';
-      points.textContent = Number(score.score).toLocaleString();
+      points.textContent = formatScore(score.score);
 
       item.append(medal, name, points);
       rankingList.appendChild(item);
