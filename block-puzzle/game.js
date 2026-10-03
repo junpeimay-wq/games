@@ -3,13 +3,14 @@ let board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null))
 let score = 0;
 let bestScore = 0;
 let availablePieces = [null, null, null];
-let selectedSlot = null;
 let isGameOver = false;
 
-// Drag state
+// Drag / Tap state
 let isDragging = false;
-let dragSlotIndex = null;
-let dragX = 0, dragY = 0;
+let activeSlotIndex = null;
+let pointerStartX = 0, pointerStartY = 0;
+let currentPointerX = 0, currentPointerY = 0;
+let isMoved = false;
 
 // IndexedDB
 let db;
@@ -75,17 +76,15 @@ const scoreEl = document.getElementById('score');
 const bestEl = document.getElementById('best');
 const slotsEls = document.querySelectorAll('.piece-slot');
 const resetBtn = document.getElementById('reset-btn');
-const rotateBtn = document.getElementById('rotate-btn');
 const dragProxyEl = document.getElementById('drag-proxy');
 
 function initGame() {
   board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
   score = 0;
-  selectedSlot = null;
   isGameOver = false;
 
   scoreEl.textContent = 0;
-  msgEl.textContent = 'ブロックをドラッグ＆ドロップして盤面に配置してください';
+  msgEl.textContent = '💡 候補をタップで回転、ドラッグで盤面へ配置';
 
   renderBoard();
   spawnNewPieces();
@@ -134,24 +133,9 @@ function rotatePiece(piece) {
   piece.shape = rotateMatrixClockwise(piece.shape);
 }
 
-rotateBtn.addEventListener('click', () => {
-  if (isGameOver) return;
-  if (selectedSlot !== null && availablePieces[selectedSlot]) {
-    rotatePiece(availablePieces[selectedSlot]);
-  } else {
-    // Rotate all available pieces if none specifically selected
-    availablePieces.forEach(p => {
-      if (p) rotatePiece(p);
-    });
-  }
-  renderSlots();
-  msgEl.textContent = '🔄 ブロックを回転しました！';
-});
-
 function renderSlots() {
   slotsEls.forEach((slotEl, idx) => {
     slotEl.innerHTML = '';
-    slotEl.classList.remove('selected');
     const piece = availablePieces[idx];
 
     if (!piece) {
@@ -163,9 +147,11 @@ function renderSlots() {
     slotEl.style.opacity = '1';
     slotEl.style.pointerEvents = 'auto';
 
-    if (selectedSlot === idx) {
-      slotEl.classList.add('selected');
-    }
+    // Rotation hint icon inside candidate slot
+    const hintEl = document.createElement('div');
+    hintEl.className = 'rotate-hint';
+    hintEl.textContent = '🔄';
+    slotEl.appendChild(hintEl);
 
     const gridEl = createPieceGrid(piece, 18);
     slotEl.appendChild(gridEl);
@@ -193,37 +179,72 @@ function createPieceGrid(piece, cellSize = 18) {
   return gridEl;
 }
 
-// Setup Drag & Drop (Pointer Events for Touch & Mouse)
+// Pointer Events on Candidate Slots: Tap to Rotate / Drag to Place
 slotsEls.forEach((slotEl, idx) => {
   slotEl.addEventListener('pointerdown', (e) => {
     if (isGameOver || !availablePieces[idx]) return;
     e.preventDefault();
-    startDrag(idx, e.clientX, e.clientY);
+    activeSlotIndex = idx;
+    pointerStartX = e.clientX;
+    pointerStartY = e.clientY;
+    currentPointerX = e.clientX;
+    currentPointerY = e.clientY;
+    isMoved = false;
+    isDragging = false;
   });
 });
 
-function startDrag(slotIdx, clientX, clientY) {
-  isDragging = true;
-  dragSlotIndex = slotIdx;
-  selectedSlot = slotIdx;
-  renderSlots();
+window.addEventListener('pointermove', (e) => {
+  if (activeSlotIndex === null) return;
+  currentPointerX = e.clientX;
+  currentPointerY = e.clientY;
 
-  const piece = availablePieces[slotIdx];
-  dragProxyEl.innerHTML = '';
-  const gridEl = createPieceGrid(piece, 34); // Larger size for dragging preview
-  dragProxyEl.appendChild(gridEl);
-  dragProxyEl.classList.remove('hidden');
+  const dist = Math.hypot(currentPointerX - pointerStartX, currentPointerY - pointerStartY);
 
-  updateDragPosition(clientX, clientY);
-}
+  if (dist > 8 && !isDragging) {
+    // Start drag mode
+    isDragging = true;
+    isMoved = true;
 
-function updateDragPosition(clientX, clientY) {
-  dragX = clientX;
-  dragY = clientY;
+    const piece = availablePieces[activeSlotIndex];
+    dragProxyEl.innerHTML = '';
+    const gridEl = createPieceGrid(piece, 34);
+    dragProxyEl.appendChild(gridEl);
+    dragProxyEl.classList.remove('hidden');
+  }
+
+  if (isDragging) {
+    updateDragProxy(currentPointerX, currentPointerY);
+  }
+});
+
+window.addEventListener('pointerup', () => {
+  if (activeSlotIndex === null) return;
+
+  if (isDragging) {
+    // End Drag -> Attempt Placement
+    endDragPlacement();
+  } else {
+    // Quick Tap -> Rotate candidate piece inside slot
+    const piece = availablePieces[activeSlotIndex];
+    if (piece) {
+      rotatePiece(piece);
+      renderSlots();
+      msgEl.textContent = '🔄 候補ブロックを回転しました！';
+      checkGameOver();
+    }
+  }
+
+  activeSlotIndex = null;
+  isDragging = false;
+  isMoved = false;
+  dragProxyEl.classList.add('hidden');
+});
+
+function updateDragProxy(clientX, clientY) {
   dragProxyEl.style.left = `${clientX}px`;
   dragProxyEl.style.top = `${clientY}px`;
 
-  // Find board cell under pointer
   const boardRect = boardEl.getBoundingClientRect();
   if (clientX >= boardRect.left && clientX <= boardRect.right &&
       clientY >= boardRect.top && clientY <= boardRect.bottom) {
@@ -231,51 +252,37 @@ function updateDragPosition(clientX, clientY) {
     const hoverC = Math.floor((clientX - boardRect.left) / cellSize);
     const hoverR = Math.floor((clientY - boardRect.top) / cellSize);
 
-    updateBoardPreview(dragSlotIndex, hoverR, hoverC);
+    updateBoardPreview(activeSlotIndex, hoverR, hoverC);
   } else {
     clearPreview();
   }
 }
 
-function endDrag() {
-  if (!isDragging) return;
-  isDragging = false;
+function endDragPlacement() {
   dragProxyEl.classList.add('hidden');
-
-  const piece = availablePieces[dragSlotIndex];
+  const piece = availablePieces[activeSlotIndex];
   if (!piece) {
     clearPreview();
     return;
   }
 
   const boardRect = boardEl.getBoundingClientRect();
-  if (dragX >= boardRect.left && dragX <= boardRect.right &&
-      dragY >= boardRect.top && dragY <= boardRect.bottom) {
+  if (currentPointerX >= boardRect.left && currentPointerX <= boardRect.right &&
+      currentPointerY >= boardRect.top && currentPointerY <= boardRect.bottom) {
     const cellSize = boardRect.width / BOARD_SIZE;
-    const hoverC = Math.floor((dragX - boardRect.left) / cellSize);
-    const hoverR = Math.floor((dragY - boardRect.top) / cellSize);
+    const hoverC = Math.floor((currentPointerX - boardRect.left) / cellSize);
+    const hoverR = Math.floor((currentPointerY - boardRect.top) / cellSize);
 
-    // Calculate centered top-left placement
+    // Centered placement offset
     const startR = hoverR - Math.floor(piece.shape.length / 2);
     const startC = hoverC - Math.floor(piece.shape[0].length / 2);
 
-    attemptPlacement(dragSlotIndex, startR, startC);
+    attemptPlacement(activeSlotIndex, startR, startC);
   } else {
     clearPreview();
+    msgEl.textContent = '💡 候補をタップで回転、ドラッグで盤面へ配置';
   }
 }
-
-window.addEventListener('pointermove', (e) => {
-  if (isDragging) {
-    updateDragPosition(e.clientX, e.clientY);
-  }
-});
-
-window.addEventListener('pointerup', () => {
-  if (isDragging) {
-    endDrag();
-  }
-});
 
 function getPlacementValidity(shape, startR, startC) {
   let isOverflow = false;
@@ -315,7 +322,6 @@ function updateBoardPreview(slotIdx, hoverR, hoverC) {
   const piece = availablePieces[slotIdx];
   if (!piece) return;
 
-  // Center alignment offset calculation
   const startR = hoverR - Math.floor(piece.shape.length / 2);
   const startC = hoverC - Math.floor(piece.shape[0].length / 2);
 
@@ -367,7 +373,6 @@ function attemptPlacement(slotIdx, startR, startC) {
   scoreEl.textContent = score;
 
   availablePieces[slotIdx] = null;
-  selectedSlot = null;
   clearPreview();
   renderBoard();
   renderSlots();
@@ -435,7 +440,7 @@ function checkAndClearLines() {
       renderBoard();
     }, 300);
   } else {
-    msgEl.textContent = 'ブロックをドラッグ＆ドロップして盤面に配置してください';
+    msgEl.textContent = '💡 候補をタップで回転、ドラッグで盤面へ配置';
   }
 
   if (score > bestScore) {
