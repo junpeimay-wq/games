@@ -167,18 +167,31 @@ slotsEls.forEach((slotEl, idx) => {
   });
 });
 
-function canPlace(shape, startR, startC) {
+function getPlacementValidity(shape, startR, startC) {
+  let isOverflow = false;
+  let isOverlap = false;
+
   for (let r = 0; r < shape.length; r++) {
     for (let c = 0; c < shape[r].length; c++) {
       if (shape[r][c]) {
         const br = startR + r;
         const bc = startC + c;
-        if (br < 0 || br >= BOARD_SIZE || bc < 0 || bc >= BOARD_SIZE) return false;
-        if (board[br][bc] !== null) return false;
+        if (br < 0 || br >= BOARD_SIZE || bc < 0 || bc >= BOARD_SIZE) {
+          isOverflow = true;
+        } else if (board[br][bc] !== null) {
+          isOverlap = true;
+        }
       }
     }
   }
-  return true;
+
+  if (isOverflow) return 'OVERFLOW';
+  if (isOverlap) return 'OVERLAP';
+  return 'OK';
+}
+
+function canPlace(shape, startR, startC) {
+  return getPlacementValidity(shape, startR, startC) === 'OK';
 }
 
 function clearPreview() {
@@ -194,8 +207,8 @@ function handleCellHover(r, c) {
   const piece = availablePieces[selectedSlot];
   if (!piece) return;
 
-  const valid = canPlace(piece.shape, r, c);
-  const className = valid ? 'preview-valid' : 'preview-invalid';
+  const status = getPlacementValidity(piece.shape, r, c);
+  const className = status === 'OK' ? 'preview-valid' : 'preview-invalid';
 
   for (let pr = 0; pr < piece.shape.length; pr++) {
     for (let pc = 0; pc < piece.shape[pr].length; pc++) {
@@ -217,8 +230,14 @@ function handleCellClick(r, c) {
   const piece = availablePieces[selectedSlot];
   if (!piece) return;
 
-  if (!canPlace(piece.shape, r, c)) {
-    msgEl.textContent = 'ここには配置できません！';
+  const validity = getPlacementValidity(piece.shape, r, c);
+
+  if (validity !== 'OK') {
+    if (validity === 'OVERFLOW') {
+      msgEl.textContent = '⚠️ ブロックが盤面からはみ出しています！配置をキャンセルしました';
+    } else if (validity === 'OVERLAP') {
+      msgEl.textContent = '⚠️ 既存のブロックと重なっています！配置をキャンセルしました';
+    }
     return;
   }
 
@@ -278,7 +297,6 @@ function checkAndClearLines() {
 
   const totalLines = rowsToClear.length + colsToClear.length;
   if (totalLines > 0) {
-    // Multi-line bonus
     const lineScore = totalLines * 100 * totalLines;
     score += lineScore;
     scoreEl.textContent = score;
@@ -289,7 +307,6 @@ function checkAndClearLines() {
       msgEl.textContent = `✨ ライン消去！ +${lineScore}点！`;
     }
 
-    // Flash animation & clear logic
     const cellsToClear = new Set();
     rowsToClear.forEach(r => {
       for (let c = 0; c < BOARD_SIZE; c++) cellsToClear.add(`${r},${c}`);
