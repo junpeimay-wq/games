@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧩 8x8ブロックパズル</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>🧩 8x8ブロックパズル</h1>
+
+  <div class="score-container">
+    <div class="score-box">スコア: <span id="score">0</span></div>
+    <div class="score-box highlight">最高: <span id="best">0</span></div>
+  </div>
+
+  <div id="msg" class="message">ブロックを選んで盤面に配置してください</div>
+
+  <div class="board" id="board">
+    <!-- 8x8 cells generated dynamically or static -->
+  </div>
+
+  <div class="pieces-container" id="pieces-container">
+    <div class="piece-slot" data-slot="0"></div>
+    <div class="piece-slot" data-slot="1"></div>
+    <div class="piece-slot" data-slot="2"></div>
+  </div>
+
+  <button id="reset-btn" class="reset-btn">リセット / もう一度遊ぶ</button>
+
+  <script src="game.js"></script>
+</body>
+</html>
