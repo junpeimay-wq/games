@@ -13,12 +13,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>⭕ 戦略的〇×ゲーム</title>
+  <meta name="description" content="プレイヤーは〇、CPUは×で対戦する戦略的な3×3マルバツゲーム。相手の駒を1回だけ上書きできるルールで、縦・横・斜めの3つ並びを目指そう。">
+  <link rel="canonical" href="https://junpeimay-wq.github.io/games/tictactoe/">
   <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="../firebase-demo/shared-score.css">
 </head>
 <body>
+  <main>
   <h1>⭕ 戦略的〇×ゲーム</h1>
   <div class="streak-container">
     連勝: <span id="current-streak">0</span>　最高連勝: <span id="best-streak">0</span>
@@ -53,6 +56,12 @@
 
   <button id="reset-btn" class="reset-btn">リセット / もう一度遊ぶ</button>
 
+  <section class="game-guide" aria-labelledby="game-guide-title">
+    <h2 id="game-guide-title">ルールと遊び方</h2>
+    <p>3×3の盤面で、プレイヤーは先手の〇、CPUは後手の×を置きます。縦・横・斜めのいずれかに自分の駒を3つ並べると勝利です。</p>
+    <p>空いているマスに駒を置けるほか、各プレイヤーは1回だけ相手の駒を自分の駒に上書きできます。勝利すると連勝数が増え、敗北または引き分けでリセットされます。</p>
+  </section>
+  </main>
   <script type="module" src="game.js"></script>
 </body>
 </html>
