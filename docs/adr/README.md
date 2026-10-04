@@ -13,3 +13,4 @@
 | [0005](0005-main-changes-through-pull-requests.md) | mainへの変更はPull Request経由とする | 承認済み |
 | [0006](0006-game-emojis-and-favicons.md) | ゲーム名の絵文字とファビコンの使い分け | 承認済み |
 | [0007](0007-search-friendly-game-content.md) | 検索向けのゲーム説明とページメタデータ | 承認済み |
+| [0008](0008-visual-change-proof-in-pull-requests.md) | デザイン変更時のPRスクリーンショット証跡 | 承認済み |
