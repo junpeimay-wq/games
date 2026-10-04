@@ -13,12 +13,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🧩 8x8ブロックパズル</title>
+  <meta name="description" content="8×8の盤面にブロックを配置し、縦または横の列をそろえて消す無料パズルゲーム。ブロックを回転し、複数列消しや全消しボーナスを狙おう。">
+  <link rel="canonical" href="https://junpeimay-wq.github.io/games/block-puzzle/">
   <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="../firebase-demo/shared-score.css">
 </head>
 <body>
+  <main>
   <h1>🧩 8x8ブロックパズル</h1>
   <a class="ranking-link" href="../ranking/block-puzzle.html">🏆 ランキング</a>
   <p id="ranking-status" class="ranking-status" aria-live="polite"></p>
@@ -44,6 +47,12 @@
 
   <div id="drag-proxy" class="drag-proxy hidden"></div>
 
+  <section class="game-guide" aria-labelledby="game-guide-title">
+    <h2 id="game-guide-title">遊び方</h2>
+    <p>8×8の盤面に、候補として表示されるブロックを配置します。縦または横の8マスが埋まると列が消え、複数列を同時に消すとボーナス点が加算されます。</p>
+    <p>候補ブロックをタップして回転し、ドラッグして盤面に置きます。全てのブロックを置けなくなるとゲーム終了です。盤面を全て空にするパーフェクトクリアでは特別ボーナスを獲得できます。</p>
+  </section>
+  </main>
   <script type="module" src="game.js"></script>
 </body>
 </html>

@@ -11,11 +11,15 @@
   </script>
 
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎮 GAME ARCADE</title>
+  <meta name="description" content="ブラウザですぐ遊べる無料ゲーム集。スネーク、戦略的〇×ゲーム、8x8ブロックパズルを公開中。スマートフォンのタッチ操作やPCのキーボードに対応し、ゲーム別ランキングも楽しめます。">
+  <link rel="canonical" href="https://junpeimay-wq.github.io/games/">
   <link rel="icon" type="image/png" sizes="96x96" href="favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    main { width: 100%; }
     body {
       background: #1a1a2e;
       color: #eee;
@@ -61,6 +65,7 @@
     }
     .card-title {
       font-size: 1.1rem;
+      font-weight: normal;
       color: #00ff88;
       margin-bottom: 4px;
     }
@@ -71,35 +76,37 @@
   </style>
 </head>
 <body>
+  <main>
   <h1>🎮 GAME ARCADE</h1>
   <div class="grid">
     <a class="card" href="snake/index.html">
-      <img src="snake/thumbnail.jpg" alt="スネークゲーム">
+      <img src="snake/thumbnail.jpg" alt="スネークゲーム" width="1376" height="768" fetchpriority="high">
       <div class="card-body">
-        <div class="card-title">🐍 スネークゲーム</div>
+        <h2 class="card-title">🐍 スネークゲーム</h2>
         <div class="card-desc">矢印キー / WASD / スワイプで操作。食べ物を食べて長くなれ！</div>
       </div>
     </a>
     <a class="card" href="tictactoe/index.html">
-      <img src="tictactoe/thumbnail.jpg" alt="戦略的〇×ゲーム">
+      <img src="tictactoe/thumbnail.jpg" alt="戦略的〇×ゲーム" width="1376" height="768" loading="lazy" decoding="async">
       <div class="card-body">
-        <div class="card-title">⭕ 戦略的〇×ゲーム</div>
+        <h2 class="card-title">⭕ 戦略的〇×ゲーム</h2>
         <div class="card-desc">相手の駒を1回だけ上書きできる思考型マルバツゲーム！</div>
       </div>
     </a>
     <a class="card" href="block-puzzle/index.html">
-      <img src="block-puzzle/thumbnail.jpg" alt="8x8ブロックパズル">
+      <img src="block-puzzle/thumbnail.jpg" alt="8x8ブロックパズル" width="1376" height="768" loading="lazy" decoding="async">
       <div class="card-body">
-        <div class="card-title">🧩 8x8ブロックパズル</div>
+        <h2 class="card-title">🧩 8x8ブロックパズル</h2>
         <div class="card-desc">ブロックを配置して縦横ライン消去！同時消しボーナス付き！</div>
       </div>
     </a>
     <a class="card" href="ranking/index.html">
       <div class="card-body">
-        <div class="card-title">🏆 ゲーム別ランキング</div>
+        <h2 class="card-title">🏆 ゲーム別ランキング</h2>
         <div class="card-desc">各ゲームのハイスコア・連勝数を見る</div>
       </div>
     </a>
   </div>
+  </main>
 </body>
 </html>
