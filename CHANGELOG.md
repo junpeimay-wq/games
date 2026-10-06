@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/junpeimay-wq/games/compare/v0.2.0...v0.2.1) (2026-10-06)
+
+
+### Bug Fixes
+
+* スマホで地図と解答欄を同時表示 ([#8](https://github.com/junpeimay-wq/games/issues/8)) ([e788722](https://github.com/junpeimay-wq/games/commit/e7887228b0336e4ba04d00e8bb01b1b86f5e237c))
+
 ## [0.2.0](https://github.com/junpeimay-wq/games/compare/v0.1.0...v0.2.0) (2026-10-06)
 
 
