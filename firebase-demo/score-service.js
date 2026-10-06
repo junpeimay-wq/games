@@ -7,10 +7,15 @@ import {
 import {
   doc,
   getDoc,
+  runTransaction,
   serverTimestamp,
   setDoc
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import { GAME_LABELS, isNewHighScore } from './score-utils.js';
+import {
+  GAME_LABELS,
+  isNewHighScore,
+  updateMapSymbolProgress
+} from './score-utils.js';
 
 let currentUser = null;
 let resolveAuthReady;
@@ -23,8 +28,8 @@ onAuthStateChanged(auth, (user) => {
   resolveAuthReady();
 });
 
-function setStatus(message, isError = false) {
-  const status = document.getElementById('ranking-status');
+function setStatus(message, isError = false, statusElementId = 'ranking-status') {
+  const status = document.getElementById(statusElementId);
   if (!status) return;
   status.textContent = message;
   status.classList.toggle('error', isError);
@@ -38,6 +43,7 @@ function confirmAndSignIn(game, score) {
       <h2>ランキングに記録しますか？</h2>
       <p>${GAME_LABELS[game]}の新しいハイスコアは <strong>${score.toLocaleString()}</strong> 点です。</p>
       <p>記録にはGoogle認証が必要です。認証後、このスコアを自動で送信します。</p>
+      <p>スコアとGoogleプロフィールの表示名・画像は公開ランキングに表示されます。</p>
       <div class="score-consent-actions">
         <button type="button" class="score-consent-accept">Google認証して記録</button>
         <button type="button" class="score-consent-cancel">今回は記録しない</button>
@@ -72,7 +78,7 @@ function confirmAndSignIn(game, score) {
   });
 }
 
-export async function recordHighScore(game, score) {
+export async function recordHighScore(game, score, statusElementId = 'ranking-status') {
   if (!Object.hasOwn(GAME_LABELS, game)) {
     throw new Error(`Unknown game: ${game}`);
   }
@@ -85,7 +91,7 @@ export async function recordHighScore(game, score) {
   if (!user) {
     user = await confirmAndSignIn(game, score);
     if (!user) {
-      setStatus('このハイスコアはランキングに記録されませんでした。');
+      setStatus('このハイスコアはランキングに記録されませんでした。', false, statusElementId);
       return false;
     }
   }
@@ -95,7 +101,7 @@ export async function recordHighScore(game, score) {
     const existing = await getDoc(scoreRef);
     const previousBest = existing.exists() ? existing.data().score : -1;
     if (!isNewHighScore(score, previousBest)) {
-      setStatus('ランキングには、これより高いスコアが記録済みです。');
+      setStatus('ランキングには、これより高いスコアが記録済みです。', false, statusElementId);
       return false;
     }
 
@@ -107,11 +113,113 @@ export async function recordHighScore(game, score) {
       score,
       updatedAt: serverTimestamp()
     });
-    setStatus('ハイスコアをランキングに記録しました。');
+    setStatus('ハイスコアをランキングに記録しました。', false, statusElementId);
     return true;
   } catch (error) {
     console.error('Score recording error:', error);
-    setStatus(`ランキングへの記録に失敗しました: ${error.message}`, true);
+    setStatus(`ランキングへの記録に失敗しました: ${error.message}`, true, statusElementId);
     return false;
   }
+}
+
+export async function loadMapSymbolCloudProgress() {
+  await authReady;
+  const user = currentUser || auth.currentUser;
+  if (!user) return null;
+
+  const progressRef = doc(db, 'users', user.uid, 'mapSymbolProgress', 'progress');
+  const scoreRef = doc(db, 'scores', `terrain-quest_${user.uid}`);
+  const [progressSnapshot, scoreSnapshot] = await Promise.all([
+    getDoc(progressRef),
+    getDoc(scoreRef)
+  ]);
+  const progress = progressSnapshot.exists() ? progressSnapshot.data() : null;
+  if (progress && (progress.uid !== user.uid
+      || !progress.symbols || typeof progress.symbols !== 'object'
+      || Array.isArray(progress.symbols)
+      || !Object.hasOwn(progress.symbols, progress.lastUpdatedSymbol)
+      || Object.entries(progress.symbols).some(([symbolId, symbolProgress]) =>
+        !/^\d{4}$/.test(symbolId)
+        || !symbolProgress || typeof symbolProgress !== 'object'
+        || !Number.isInteger(symbolProgress.attempts) || symbolProgress.attempts < 1
+        || !Number.isInteger(symbolProgress.correctAnswers)
+        || symbolProgress.correctAnswers < 0
+        || symbolProgress.correctAnswers > symbolProgress.attempts
+        || symbolProgress.mastered !== (symbolProgress.correctAnswers > 0)))) {
+    throw new Error('Invalid map symbol progress document.');
+  }
+
+  const totalPoints = scoreSnapshot.exists() ? scoreSnapshot.data().score : 0;
+  if (!Number.isInteger(totalPoints) || totalPoints < 0) {
+    throw new Error('Invalid map quiz score record.');
+  }
+  return { uid: user.uid, symbols: progress?.symbols ?? {}, totalPoints };
+}
+
+export async function recordMapSymbolAnswer(symbolId, isCorrect) {
+  if (!/^\d{4}$/.test(symbolId) || typeof isCorrect !== 'boolean') {
+    throw new Error('Invalid map symbol answer.');
+  }
+
+  await authReady;
+  const user = currentUser || auth.currentUser;
+  if (!user) return null;
+
+  const progressRef = doc(db, 'users', user.uid, 'mapSymbolProgress', 'progress');
+  const scoreRef = doc(db, 'scores', `terrain-quest_${user.uid}`);
+  return runTransaction(db, async (transaction) => {
+    const [progressSnapshot, scoreSnapshot] = await Promise.all([
+      transaction.get(progressRef),
+      transaction.get(scoreRef)
+    ]);
+    const previousDocument = progressSnapshot.exists() ? progressSnapshot.data() : null;
+    const previousSymbols = previousDocument?.symbols ?? {};
+    if (previousDocument && (previousDocument.uid !== user.uid
+        || !previousSymbols || typeof previousSymbols !== 'object'
+        || Array.isArray(previousSymbols)
+        || !Object.hasOwn(previousSymbols, previousDocument.lastUpdatedSymbol)
+        || Object.entries(previousSymbols).some(([id, symbolProgress]) =>
+          !/^\d{4}$/.test(id)
+          || !symbolProgress || typeof symbolProgress !== 'object'
+          || !Number.isInteger(symbolProgress.attempts) || symbolProgress.attempts < 1
+          || !Number.isInteger(symbolProgress.correctAnswers)
+          || symbolProgress.correctAnswers < 0
+          || symbolProgress.correctAnswers > symbolProgress.attempts
+          || symbolProgress.mastered !== (symbolProgress.correctAnswers > 0)))) {
+      throw new Error('Invalid map symbol progress document.');
+    }
+
+    const nextProgress = updateMapSymbolProgress(previousSymbols[symbolId] ?? null, symbolId, isCorrect);
+    const nextSymbols = {
+      ...previousSymbols,
+      [symbolId]: {
+        attempts: nextProgress.attempts,
+        correctAnswers: nextProgress.correctAnswers,
+        mastered: nextProgress.mastered
+      }
+    };
+    transaction.set(progressRef, {
+      uid: user.uid,
+      symbols: nextSymbols,
+      lastUpdatedSymbol: symbolId,
+      updatedAt: serverTimestamp()
+    });
+
+    const previousScore = scoreSnapshot.exists() ? scoreSnapshot.data().score : 0;
+    if (!Number.isInteger(previousScore) || previousScore < 0) {
+      throw new Error('Invalid map quiz score record.');
+    }
+    const totalPoints = previousScore + nextProgress.pointsAwarded;
+    if (nextProgress.pointsAwarded > 0) {
+      transaction.set(scoreRef, {
+        uid: user.uid,
+        name: user.displayName || user.email || 'プレイヤー',
+        photoURL: user.photoURL || '',
+        game: 'terrain-quest',
+        score: totalPoints,
+        updatedAt: serverTimestamp()
+      });
+    }
+    return { ...nextProgress, totalPoints };
+  });
 }

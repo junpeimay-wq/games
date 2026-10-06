@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🗺️ 地図記号クイズランキング - GAME ARCADE</title>
+  <meta name="description" content="まちの地図記号クイズで記録した累計スコアのランキング。Google認証した利用者の上位10人を表示します。">
+  <link rel="canonical" href="https://junpeimay-wq.github.io/games/ranking/terrain-quest.html">
+  <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+  <link rel="stylesheet" href="ranking.css">
+</head>
+<body data-game="terrain-quest">
+  <header>
+    <h1>🗺️ 地図記号クイズランキング</h1>
+    <nav class="ranking-breadcrumb" aria-label="階層">
+      <a href="index.html">← 全ゲームランキング</a>
+      <span aria-current="page">› 地図記号クイズ</span>
+      <a class="ranking-game-link" href="../terrain-quest/">地図記号クイズを遊ぶ</a>
+    </nav>
+  </header>
+  <main>
+    <p class="intro">Google認証した利用者の累計スコアを表示します。記号の初回正解は100点、既知の記号の正解は10点です。</p>
+    <ol class="ranking-list" id="ranking-list" aria-live="polite">
+      <li class="empty">読み込み中...</li>
+    </ol>
+    <p id="ranking-error" class="error" role="status"></p>
+  </main>
+  <script type="module" src="ranking.js"></script>
+</body>
+</html>
