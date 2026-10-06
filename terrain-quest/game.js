@@ -288,10 +288,10 @@ async function initializeMap(latitude, longitude) {
       container: mapElement,
       style,
       center: [longitude, latitude],
-      zoom: MAP_ZOOM - 1,
+      zoom: MAP_ZOOM,
       attributionControl: true,
-      minZoom: MAP_ZOOM - 1,
-      maxZoom: MAP_ZOOM - 1,
+      minZoom: MAP_ZOOM,
+      maxZoom: MAP_ZOOM,
       dragRotate: false,
       touchPitch: false,
       pitchWithRotate: false
