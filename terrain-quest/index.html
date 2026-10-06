@@ -23,7 +23,11 @@
       <p id="game-message" class="game-message" aria-live="polite"></p>
 
       <div class="quiz-progress score-bar" aria-label="現在のスコア">
-        <span id="quiz-count">0問</span>
+        <div class="score-summary">
+          <span id="quiz-count">0問</span>
+          <button id="mastered-symbols-button" class="mastered-symbols-button" type="button"
+            aria-haspopup="dialog" aria-controls="mastered-symbols-dialog">正解した記号 0種</button>
+        </div>
         <span id="quiz-score">累計 0点</span>
       </div>
 
@@ -56,6 +60,17 @@
         <button id="next-question" class="next-question" type="button" hidden>次の問題へ</button>
       </section>
     </section>
+
+    <dialog id="mastered-symbols-dialog" class="mastered-symbols-dialog"
+      aria-labelledby="mastered-symbols-title">
+      <div class="mastered-symbols-dialog-header">
+        <h2 id="mastered-symbols-title">正解した地図記号</h2>
+        <span id="mastered-symbols-count"></span>
+        <button id="close-mastered-symbols" class="close-mastered-symbols" type="button"
+          aria-label="閉じる">×</button>
+      </div>
+      <ul id="mastered-symbols-list" class="mastered-symbols-list"></ul>
+    </dialog>
 
     <footer class="credits">
       <p>地図・記号データ：<a href="https://maps.gsi.go.jp/development/vt.html" target="_blank" rel="noopener noreferrer">国土地理院 最適化ベクトルタイル</a></p>

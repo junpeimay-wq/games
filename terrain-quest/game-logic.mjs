@@ -94,6 +94,13 @@ export function getMapSymbolByCode(code) {
   return SYMBOL_BY_CODE.get(normalizedCode) ?? null;
 }
 
+export function getMasteredMapSymbols(progress) {
+  if (!progress || typeof progress !== 'object' || Array.isArray(progress)) {
+    throw new RangeError('Invalid map symbol progress.');
+  }
+  return MAP_SYMBOLS.filter(symbol => progress[symbol.id]?.correctAnswers > 0);
+}
+
 export function createEmptySymbolProgress() {
   return { version: 1, symbols: {} };
 }

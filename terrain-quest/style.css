@@ -200,6 +200,110 @@ h1 {
   font-weight: bold;
 }
 
+.score-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mastered-symbols-button,
+.close-mastered-symbols {
+  min-height: 36px;
+  padding: 5px 9px;
+  background: #19213b;
+  border: 1px solid #75e5ff;
+  border-radius: 7px;
+  color: #75e5ff;
+  font: 600 0.78rem/1.2 sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mastered-symbols-button:hover,
+.close-mastered-symbols:hover {
+  background: #253354;
+}
+
+.mastered-symbols-button:focus-visible,
+.close-mastered-symbols:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.mastered-symbols-dialog {
+  width: min(92vw, 460px);
+  max-height: min(78vh, 680px);
+  max-height: min(78dvh, 680px);
+  margin: auto;
+  padding: 16px;
+  overflow: hidden;
+  background: #19213b;
+  border: 2px solid #00ff88;
+  border-radius: 12px;
+  color: #e8f2bd;
+  box-shadow: 0 12px 48px #0009;
+}
+
+.mastered-symbols-dialog::backdrop {
+  background: #080d1dcc;
+  backdrop-filter: blur(2px);
+}
+
+.mastered-symbols-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mastered-symbols-dialog-header h2 {
+  margin: 0;
+  color: #00ff88;
+  font-size: 1rem;
+}
+
+#mastered-symbols-count {
+  margin-left: auto;
+  color: #ffdf6e;
+  font-size: 0.8rem;
+}
+
+.close-mastered-symbols {
+  width: 38px;
+  min-height: 38px;
+  padding: 0;
+  font-size: 1.3rem;
+}
+
+.mastered-symbols-list {
+  display: grid;
+  max-height: calc(min(78vh, 680px) - 88px);
+  max-height: calc(min(78dvh, 680px) - 88px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+  padding: 0 4px 0 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.mastered-symbols-list li {
+  padding: 9px;
+  background: #10152b;
+  border: 1px solid #51617f;
+  border-radius: 7px;
+  color: #fff;
+  font: 600 0.85rem/1.35 sans-serif;
+  overflow-wrap: anywhere;
+}
+
+.mastered-symbols-list .mastered-symbols-empty {
+  grid-column: 1 / -1;
+  color: #b5c4d6;
+  font-weight: normal;
+  text-align: center;
+}
+
 .quiz-question {
   margin: 10px 0;
   color: #fff;
@@ -423,6 +527,30 @@ h1 {
     margin: 2px 0;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .score-summary {
+    gap: 5px;
+  }
+
+  .mastered-symbols-button {
+    min-height: 32px;
+    padding: 4px 6px;
+    font-size: 0.66rem;
+  }
+
+  .mastered-symbols-dialog {
+    width: min(94vw, 460px);
+    padding: 12px;
+  }
+
+  .mastered-symbols-list {
+    gap: 5px;
+  }
+
+  .mastered-symbols-list li {
+    padding: 8px 6px;
+    font-size: 0.78rem;
   }
 
   .quiz-choices {

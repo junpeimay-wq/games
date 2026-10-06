@@ -2,6 +2,7 @@ import {
   buildSymbolChoices,
   createEmptySymbolProgress,
   getMapSymbolByCode,
+  getMasteredMapSymbols,
   getTotalSymbolScore,
   isSymbolProgressRecord,
   MAP_SYMBOL_CODES,
@@ -26,6 +27,11 @@ const locationMapLink = document.getElementById('location-map-link');
 const quizPanel = document.getElementById('quiz-panel');
 const quizCount = document.getElementById('quiz-count');
 const quizScore = document.getElementById('quiz-score');
+const masteredSymbolsButton = document.getElementById('mastered-symbols-button');
+const masteredSymbolsDialog = document.getElementById('mastered-symbols-dialog');
+const masteredSymbolsCount = document.getElementById('mastered-symbols-count');
+const masteredSymbolsList = document.getElementById('mastered-symbols-list');
+const closeMasteredSymbolsButton = document.getElementById('close-mastered-symbols');
 const quizRecord = document.getElementById('quiz-record');
 const quizRecordStatus = document.getElementById('quiz-record-status');
 const quizQuestion = document.getElementById('quiz-question');
@@ -54,7 +60,30 @@ function getKnownSymbolCount(symbols) {
 function renderScore() {
   quizScore.textContent = `累計 ${currentScore}点`;
   const symbols = cloudMode ? cloudProgress.symbols : localProgress.symbols;
-  quizRecord.textContent = `知っている記号 ${getKnownSymbolCount(symbols)}種類`;
+  const knownSymbolCount = getKnownSymbolCount(symbols);
+  quizRecord.textContent = `知っている記号 ${knownSymbolCount}種類`;
+  masteredSymbolsButton.textContent = `正解した記号 ${knownSymbolCount}種`;
+}
+
+function renderMasteredSymbols() {
+  const symbols = cloudMode ? cloudProgress.symbols : localProgress.symbols;
+  const masteredSymbols = getMasteredMapSymbols(symbols);
+  masteredSymbolsCount.textContent = `${masteredSymbols.length}種類`;
+  masteredSymbolsList.replaceChildren();
+
+  if (masteredSymbols.length === 0) {
+    const emptyMessage = document.createElement('li');
+    emptyMessage.className = 'mastered-symbols-empty';
+    emptyMessage.textContent = '正解した記号はまだありません。';
+    masteredSymbolsList.append(emptyMessage);
+    return;
+  }
+
+  for (const symbol of masteredSymbols) {
+    const item = document.createElement('li');
+    item.textContent = symbol.label;
+    masteredSymbolsList.append(item);
+  }
 }
 
 function loadLocalProgress() {
@@ -376,6 +405,11 @@ function startLocationLookup() {
 
 locateButton.addEventListener('click', startLocationLookup);
 returnToLocationButton.addEventListener('click', returnToCurrentLocation);
+masteredSymbolsButton.addEventListener('click', () => {
+  renderMasteredSymbols();
+  masteredSymbolsDialog.showModal();
+});
+closeMasteredSymbolsButton.addEventListener('click', () => masteredSymbolsDialog.close());
 quizChoices.addEventListener('click', event => {
   const choice = event.target.closest('button[data-answer]');
   if (choice) void answerQuiz(choice.dataset.answer);
