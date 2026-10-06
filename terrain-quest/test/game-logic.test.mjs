@@ -34,6 +34,8 @@ test('lists only correctly answered map symbol types in game order', () => {
 
   assert.deepEqual(mastered.map(symbol => symbol.id), ['3218', '3243']);
   assert.deepEqual(mastered.map(symbol => symbol.label), ['郵便局', '病院']);
+  assert.deepEqual(mastered.map(symbol => symbol.spriteName), ['郵便局', '病院']);
+  assert.ok(MAP_SYMBOLS.every(symbol => symbol.spriteName));
   assert.deepEqual(getMasteredMapSymbols({}), []);
   assert.throws(() => getMasteredMapSymbols(null), RangeError);
 });

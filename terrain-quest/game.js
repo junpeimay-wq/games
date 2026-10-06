@@ -16,6 +16,7 @@ import {
 } from '../firebase-demo/score-service.js';
 
 const GSI_VECTOR_STYLE_URL = 'https://gsi-cyberjapan.github.io/optimal_bvmap/style/std.json';
+const GSI_SPRITE_URL = 'https://gsi-cyberjapan.github.io/optimal_bvmap/sprite/std';
 const SYMBOL_HIT_LAYER_ID = 'terrain-quest-symbol-hit-area';
 const mapElement = document.getElementById('symbol-map');
 const locationMapPreview = document.getElementById('location-map-preview');
@@ -31,6 +32,7 @@ const masteredSymbolsButton = document.getElementById('mastered-symbols-button')
 const masteredSymbolsDialog = document.getElementById('mastered-symbols-dialog');
 const masteredSymbolsCount = document.getElementById('mastered-symbols-count');
 const masteredSymbolsList = document.getElementById('mastered-symbols-list');
+const masteredSymbolsError = document.getElementById('mastered-symbols-error');
 const closeMasteredSymbolsButton = document.getElementById('close-mastered-symbols');
 const quizRecord = document.getElementById('quiz-record');
 const quizRecordStatus = document.getElementById('quiz-record-status');
@@ -52,6 +54,7 @@ let answered = false;
 let answerSaving = false;
 let answerCount = 0;
 let scoreProgressReady;
+let mapSymbolSpritePromise;
 
 function getKnownSymbolCount(symbols) {
   return Object.values(symbols).filter(progress => progress.mastered).length;
@@ -65,10 +68,28 @@ function renderScore() {
   masteredSymbolsButton.textContent = `正解した記号 ${knownSymbolCount}種`;
 }
 
-function renderMasteredSymbols() {
+async function loadMapSymbolSpriteMetadata() {
+  if (!mapSymbolSpritePromise) {
+    mapSymbolSpritePromise = fetch(`${GSI_SPRITE_URL}.json`, { mode: 'cors' })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`地図記号画像情報を取得できませんでした（HTTP ${response.status}）。`);
+        }
+        return response.json();
+      })
+      .catch(error => {
+        mapSymbolSpritePromise = null;
+        throw error;
+      });
+  }
+  return mapSymbolSpritePromise;
+}
+
+async function renderMasteredSymbols() {
   const symbols = cloudMode ? cloudProgress.symbols : localProgress.symbols;
   const masteredSymbols = getMasteredMapSymbols(symbols);
   masteredSymbolsCount.textContent = `${masteredSymbols.length}種類`;
+  masteredSymbolsError.textContent = '';
   masteredSymbolsList.replaceChildren();
 
   if (masteredSymbols.length === 0) {
@@ -79,10 +100,38 @@ function renderMasteredSymbols() {
     return;
   }
 
+  const symbolIcons = [];
   for (const symbol of masteredSymbols) {
     const item = document.createElement('li');
-    item.textContent = symbol.label;
+    const icon = document.createElement('span');
+    icon.className = 'mastered-symbol-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    const label = document.createElement('span');
+    label.textContent = symbol.label;
+    item.append(icon, label);
     masteredSymbolsList.append(item);
+    symbolIcons.push({ icon, symbol });
+  }
+
+  try {
+    const spriteMetadata = await loadMapSymbolSpriteMetadata();
+    for (const { icon, symbol } of symbolIcons) {
+      const sprite = spriteMetadata[symbol.spriteName];
+      if (!sprite) {
+        throw new Error(`地図記号画像が見つかりません: ${symbol.spriteName}`);
+      }
+      const pixelRatio = sprite.pixelRatio ?? 2;
+      const displayScale = 0.75 / pixelRatio;
+      icon.style.width = `${sprite.width * displayScale}px`;
+      icon.style.height = `${sprite.height * displayScale}px`;
+      icon.style.backgroundImage = `url("${GSI_SPRITE_URL}.png")`;
+      icon.style.backgroundSize = `${768 / pixelRatio}px ${768 / pixelRatio}px`;
+      icon.style.backgroundPosition =
+        `-${sprite.x * displayScale}px -${sprite.y * displayScale}px`;
+    }
+  } catch (error) {
+    console.error('GSI map symbol sprites could not be loaded:', error);
+    masteredSymbolsError.textContent = '記号画像を読み込めませんでした。名称のみ表示しています。';
   }
 }
 
@@ -406,7 +455,7 @@ function startLocationLookup() {
 locateButton.addEventListener('click', startLocationLookup);
 returnToLocationButton.addEventListener('click', returnToCurrentLocation);
 masteredSymbolsButton.addEventListener('click', () => {
-  renderMasteredSymbols();
+  void renderMasteredSymbols();
   masteredSymbolsDialog.showModal();
 });
 closeMasteredSymbolsButton.addEventListener('click', () => masteredSymbolsDialog.close());
