@@ -1,7 +1,7 @@
 # ADR-0010: 全公開ゲームページへのGoogle Analytics導入
 
 ## ステータス
-承認済み（`terrain-quest/` は未実装）
+承認済み・実装済み
 
 ## 日付
 2026-10-06
@@ -11,7 +11,7 @@
 
 ## 決定
 - 公開するゲームページには、既存のGA4 Measurement ID `G-FDT7JTRCNE` を使用したタグを設置する。
-- `terrain-quest/index.html` に同じGA4タグを追加する。これは未完了の対応事項であり、このADRを実装時のチェック項目として残す。
+- `terrain-quest/index.html` にも同じGA4タグを設置する。
 - Firebaseデモなど、既存方針で計測対象外とされているページの扱いは変更しない。
 
 ## 理由
@@ -19,5 +19,5 @@
 - 既存のMeasurement IDを再利用し、サイト内で計測先を統一できる。
 
 ## 実装チェック
-- [ ] `terrain-quest/index.html` の `<head>` に `G-FDT7JTRCNE` のGA4タグを追加する。
-- [ ] 既存のタグ設置済みページと同じ初期化形式であることを確認する。
+- [x] `terrain-quest/index.html` の `<head>` に `G-FDT7JTRCNE` のGA4タグを追加する。
+- [x] 既存のタグ設置済みページと同じ初期化形式であることを確認する。
