@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/junpeimay-wq/games/compare/v0.2.1...v0.2.2) (2026-10-06)
+
+
+### Bug Fixes
+
+* 地図記号クイズの初期ズームを14に変更 ([#10](https://github.com/junpeimay-wq/games/issues/10)) ([79080fe](https://github.com/junpeimay-wq/games/commit/79080fe67fc5be95e16d6247cd78343093cfe523))
+
 ## [0.2.1](https://github.com/junpeimay-wq/games/compare/v0.2.0...v0.2.1) (2026-10-06)
 
 
