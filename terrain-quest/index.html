@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FDT7JTRCNE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-FDT7JTRCNE');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🗺️ まちの地図記号クイズ - GAME ARCADE</title>
@@ -17,38 +26,41 @@
       <a href="../index.html">← GAME ARCADE</a>
       <a href="../ranking/terrain-quest.html">🏆 地図記号クイズのランキング</a>
       <h1>🗺️ まちの地図記号クイズ</h1>
-      <p>いつものまちを、地図記号で探検しよう！</p>
     </header>
 
     <section class="game-panel" aria-label="まちの地図記号クイズ">
-      <p id="game-message" class="game-message" aria-live="polite">
-        現在地の地図を表示したら、地図上の記号をタップして意味を答えよう。
-      </p>
+      <p id="game-message" class="game-message" aria-live="polite"></p>
+
+      <div class="quiz-progress score-bar" aria-label="現在のスコア">
+        <div class="score-summary">
+          <span id="quiz-count">0問</span>
+          <button id="mastered-symbols-button" class="mastered-symbols-button" type="button"
+            aria-haspopup="dialog" aria-controls="mastered-symbols-dialog">正解した記号 0種</button>
+        </div>
+        <span id="quiz-score">累計 0点</span>
+      </div>
 
       <section class="gps-panel" aria-labelledby="gps-title">
         <h2 id="gps-title">地図記号を見つけよう</h2>
-        <p>地図の記号をタップすると、何を表すか4択で出題します。</p>
-        <p class="save-timing-note">回答を選ぶたびに学習履歴を保存します。Google認証済みならFirestore、未認証ならこの端末です。得点がある回答では累計スコアも更新します。</p>
-        <button id="locate-button" class="locate-button" type="button">現在地の地図を表示</button>
-        <p id="location-status" class="location-status" role="status" aria-live="polite">位置情報はまだ取得していません。</p>
+        <div class="map-controls">
+          <button id="locate-button" class="locate-button" type="button">現在地の地図を表示</button>
+          <button id="return-to-location" class="return-to-location" type="button" hidden>
+            ◎ 現在地へ戻る
+          </button>
+        </div>
+        <p id="location-status" class="location-status" role="status" aria-live="polite"></p>
+        <p class="location-privacy-note">現在地は地図表示だけに使い、保存しません。</p>
         <a id="location-map-link" class="location-map-link" href="#" target="_blank" rel="noopener noreferrer" hidden>
           選択した場所を国土地理院地図で開く ↗
         </a>
         <figure id="location-map-preview" class="location-map-preview" hidden>
-          <figcaption>地図はドラッグして移動できます（拡大・縮小はできません）。記号をタップしてクイズに挑戦。</figcaption>
           <div class="location-map-frame">
             <div id="symbol-map" role="application" aria-label="現在地周辺の国土地理院ベクトル地図"></div>
           </div>
-          <p class="location-map-attribution"><a href="https://maps.gsi.go.jp/development/vt.html" target="_blank" rel="noopener noreferrer">地図・記号データ：国土地理院 最適化ベクトルタイル</a></p>
         </figure>
-        <p class="location-sharing-note">位置情報を許可すると、現在地と表示範囲が国土地理院の地図配信先に伝わります。位置情報はゲームやFirestoreに保存しません。</p>
       </section>
 
       <section id="quiz-panel" class="quiz-panel" aria-label="地図記号クイズ" hidden>
-        <div class="quiz-progress">
-          <span id="quiz-count">第1問</span>
-          <span id="quiz-score">累計 0点</span>
-        </div>
         <p id="quiz-record" class="quiz-record"></p>
         <p id="quiz-record-status" class="quiz-record-status" role="status" aria-live="polite"></p>
         <p id="quiz-question" class="quiz-question"></p>
@@ -58,10 +70,21 @@
       </section>
     </section>
 
+    <dialog id="mastered-symbols-dialog" class="mastered-symbols-dialog"
+      aria-labelledby="mastered-symbols-title">
+      <div class="mastered-symbols-dialog-header">
+        <h2 id="mastered-symbols-title">正解した地図記号</h2>
+        <span id="mastered-symbols-count"></span>
+        <button id="close-mastered-symbols" class="close-mastered-symbols" type="button"
+          aria-label="閉じる">×</button>
+      </div>
+      <p id="mastered-symbols-error" class="mastered-symbols-error" role="status" aria-live="polite"></p>
+      <ul id="mastered-symbols-list" class="mastered-symbols-list"></ul>
+    </dialog>
+
     <footer class="credits">
       <p>地図・記号データ：<a href="https://maps.gsi.go.jp/development/vt.html" target="_blank" rel="noopener noreferrer">国土地理院 最適化ベクトルタイル</a></p>
-      <p>初めて正解した記号は100点、正解したことのある記号は10点。不正解の記録も学習履歴に残ります。</p>
-      <p>Google認証済みの場合はFirestoreに保存します。未認証でも認証は求めず、この端末にスコアと学習履歴を保存します。</p>
+      <p>位置情報は地図表示にのみ使用し、ゲームやFirestoreには保存しません。</p>
     </footer>
   </main>
   <script src="https://gsi-cyberjapan.github.io/optimal_bvmap/lib/maplibre-gl@2.4.0/maplibre-gl.js"></script>

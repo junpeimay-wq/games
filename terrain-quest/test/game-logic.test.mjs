@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import {
   buildSymbolChoices,
   createEmptySymbolProgress,
+  getMasteredMapSymbols,
   getMapSymbolByCode,
   getTotalSymbolScore,
   isSymbolProgressRecord,
@@ -22,6 +23,21 @@ test('maps GSI vector feature codes to map symbol meanings', () => {
   assert.equal(getMapSymbolByCode(631).id, '3212');
   assert.equal(MAP_SYMBOLS.some(symbol => symbol.id === '3214'), false);
   assert.equal(getMapSymbolByCode(9999), null);
+});
+
+test('lists only correctly answered map symbol types in game order', () => {
+  const mastered = getMasteredMapSymbols({
+    '3218': { attempts: 2, correctAnswers: 1, mastered: true },
+    '3243': { attempts: 3, correctAnswers: 2, mastered: true },
+    '3202': { attempts: 2, correctAnswers: 0, mastered: false }
+  });
+
+  assert.deepEqual(mastered.map(symbol => symbol.id), ['3218', '3243']);
+  assert.deepEqual(mastered.map(symbol => symbol.label), ['郵便局', '病院']);
+  assert.deepEqual(mastered.map(symbol => symbol.spriteName), ['郵便局', '病院']);
+  assert.ok(MAP_SYMBOLS.every(symbol => symbol.spriteName));
+  assert.deepEqual(getMasteredMapSymbols({}), []);
+  assert.throws(() => getMasteredMapSymbols(null), RangeError);
 });
 
 test('builds four distinct meaning choices that include the selected symbol', () => {

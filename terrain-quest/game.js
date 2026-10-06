@@ -2,6 +2,7 @@ import {
   buildSymbolChoices,
   createEmptySymbolProgress,
   getMapSymbolByCode,
+  getMasteredMapSymbols,
   getTotalSymbolScore,
   isSymbolProgressRecord,
   MAP_SYMBOL_CODES,
@@ -15,16 +16,24 @@ import {
 } from '../firebase-demo/score-service.js';
 
 const GSI_VECTOR_STYLE_URL = 'https://gsi-cyberjapan.github.io/optimal_bvmap/style/std.json';
+const GSI_SPRITE_URL = 'https://gsi-cyberjapan.github.io/optimal_bvmap/sprite/std';
 const SYMBOL_HIT_LAYER_ID = 'terrain-quest-symbol-hit-area';
 const mapElement = document.getElementById('symbol-map');
 const locationMapPreview = document.getElementById('location-map-preview');
 const gameMessage = document.getElementById('game-message');
 const locateButton = document.getElementById('locate-button');
+const returnToLocationButton = document.getElementById('return-to-location');
 const locationStatus = document.getElementById('location-status');
 const locationMapLink = document.getElementById('location-map-link');
 const quizPanel = document.getElementById('quiz-panel');
 const quizCount = document.getElementById('quiz-count');
 const quizScore = document.getElementById('quiz-score');
+const masteredSymbolsButton = document.getElementById('mastered-symbols-button');
+const masteredSymbolsDialog = document.getElementById('mastered-symbols-dialog');
+const masteredSymbolsCount = document.getElementById('mastered-symbols-count');
+const masteredSymbolsList = document.getElementById('mastered-symbols-list');
+const masteredSymbolsError = document.getElementById('mastered-symbols-error');
+const closeMasteredSymbolsButton = document.getElementById('close-mastered-symbols');
 const quizRecord = document.getElementById('quiz-record');
 const quizRecordStatus = document.getElementById('quiz-record-status');
 const quizQuestion = document.getElementById('quiz-question');
@@ -40,10 +49,12 @@ let cloudMode = false;
 let currentScore = 0;
 let selectedSymbol = null;
 let currentLocationMarker = null;
+let currentLocation = null;
 let answered = false;
 let answerSaving = false;
 let answerCount = 0;
 let scoreProgressReady;
+let mapSymbolSpritePromise;
 
 function getKnownSymbolCount(symbols) {
   return Object.values(symbols).filter(progress => progress.mastered).length;
@@ -52,7 +63,76 @@ function getKnownSymbolCount(symbols) {
 function renderScore() {
   quizScore.textContent = `累計 ${currentScore}点`;
   const symbols = cloudMode ? cloudProgress.symbols : localProgress.symbols;
-  quizRecord.textContent = `知っている記号 ${getKnownSymbolCount(symbols)}種類`;
+  const knownSymbolCount = getKnownSymbolCount(symbols);
+  quizRecord.textContent = `知っている記号 ${knownSymbolCount}種類`;
+  masteredSymbolsButton.textContent = `正解した記号 ${knownSymbolCount}種`;
+}
+
+async function loadMapSymbolSpriteMetadata() {
+  if (!mapSymbolSpritePromise) {
+    mapSymbolSpritePromise = fetch(`${GSI_SPRITE_URL}.json`, { mode: 'cors' })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`地図記号画像情報を取得できませんでした（HTTP ${response.status}）。`);
+        }
+        return response.json();
+      })
+      .catch(error => {
+        mapSymbolSpritePromise = null;
+        throw error;
+      });
+  }
+  return mapSymbolSpritePromise;
+}
+
+async function renderMasteredSymbols() {
+  const symbols = cloudMode ? cloudProgress.symbols : localProgress.symbols;
+  const masteredSymbols = getMasteredMapSymbols(symbols);
+  masteredSymbolsCount.textContent = `${masteredSymbols.length}種類`;
+  masteredSymbolsError.textContent = '';
+  masteredSymbolsList.replaceChildren();
+
+  if (masteredSymbols.length === 0) {
+    const emptyMessage = document.createElement('li');
+    emptyMessage.className = 'mastered-symbols-empty';
+    emptyMessage.textContent = '正解した記号はまだありません。';
+    masteredSymbolsList.append(emptyMessage);
+    return;
+  }
+
+  const symbolIcons = [];
+  for (const symbol of masteredSymbols) {
+    const item = document.createElement('li');
+    const icon = document.createElement('span');
+    icon.className = 'mastered-symbol-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    const label = document.createElement('span');
+    label.textContent = symbol.label;
+    item.append(icon, label);
+    masteredSymbolsList.append(item);
+    symbolIcons.push({ icon, symbol });
+  }
+
+  try {
+    const spriteMetadata = await loadMapSymbolSpriteMetadata();
+    for (const { icon, symbol } of symbolIcons) {
+      const sprite = spriteMetadata[symbol.spriteName];
+      if (!sprite) {
+        throw new Error(`地図記号画像が見つかりません: ${symbol.spriteName}`);
+      }
+      const pixelRatio = sprite.pixelRatio ?? 2;
+      const displayScale = 0.75 / pixelRatio;
+      icon.style.width = `${sprite.width * displayScale}px`;
+      icon.style.height = `${sprite.height * displayScale}px`;
+      icon.style.backgroundImage = `url("${GSI_SPRITE_URL}.png")`;
+      icon.style.backgroundSize = `${768 / pixelRatio}px ${768 / pixelRatio}px`;
+      icon.style.backgroundPosition =
+        `-${sprite.x * displayScale}px -${sprite.y * displayScale}px`;
+    }
+  } catch (error) {
+    console.error('GSI map symbol sprites could not be loaded:', error);
+    masteredSymbolsError.textContent = '記号画像を読み込めませんでした。名称のみ表示しています。';
+  }
 }
 
 function loadLocalProgress() {
@@ -137,6 +217,12 @@ function setLocationMapLink(latitude, longitude) {
   locationMapLink.href =
     `https://maps.gsi.go.jp/#${MAP_ZOOM}/${latitude.toFixed(6)}/${longitude.toFixed(6)}`;
   locationMapLink.hidden = false;
+}
+
+function returnToCurrentLocation() {
+  if (!map || !currentLocation) return;
+  map.flyTo({ center: [currentLocation.longitude, currentLocation.latitude] });
+  gameMessage.textContent = '現在地に戻りました。地図上の記号を選んでください。';
 }
 
 function addSymbolHitLayer() {
@@ -225,6 +311,8 @@ async function initializeMap(latitude, longitude) {
         currentLocationMarker = new window.maplibregl.Marker({ element: markerElement })
           .setLngLat([longitude, latitude])
           .addTo(map);
+        document.body.classList.add('map-ready');
+        map.resize();
         resolve();
       });
       map.on('error', event => {
@@ -252,12 +340,12 @@ function openSymbolQuestion(symbol, coordinate) {
   selectedSymbol = symbol;
   answered = false;
   quizPanel.hidden = false;
-  quizQuestion.textContent = 'この地図記号は何を表しているでしょう？';
+  quizQuestion.textContent = 'この記号は？';
   quizFeedback.textContent = '';
   nextQuestionButton.hidden = true;
   renderChoices(symbol);
   setLocationMapLink(coordinate.lat, coordinate.lng);
-  gameMessage.textContent = '地図上で記号を選びました。4つの答えから選択してください。';
+  gameMessage.textContent = '4つの答えから選んでください。';
 }
 
 async function answerQuiz(answerId) {
@@ -267,8 +355,8 @@ async function answerQuiz(answerId) {
   const symbol = selectedSymbol;
   await scoreProgressReady;
   quizRecordStatus.textContent = cloudMode
-    ? '回答をFirestoreに保存しています...'
-    : '回答をこの端末に保存しています...';
+    ? 'Firestoreに保存中...'
+    : '端末に保存中...';
   const isCorrect = answerId === symbol.id;
   quizChoices.querySelectorAll('button').forEach(button => {
     button.disabled = true;
@@ -300,18 +388,14 @@ async function answerQuiz(answerId) {
   answerCount += 1;
   quizScore.textContent = `累計 ${currentScore}点`;
   const resultText = isCorrect
-    ? result.pointsAwarded === 100
-      ? '初めて正解した記号です。100点！'
-      : `知っている記号に正解しました。${result.pointsAwarded}点！`
-    : `正解は「${symbol.label}」です。次に見かけたら確かめてみましょう。`;
+    ? `+${result.pointsAwarded}点`
+    : `答え：${symbol.label}`;
   quizFeedback.textContent = isCorrect
-    ? `正解！「${symbol.label}」の記号です。${resultText}`
+    ? `正解！${resultText}`
     : `不正解。${resultText}`;
   quizCount.textContent = `${answerCount}問回答`;
-  gameMessage.textContent = isCorrect
-    ? `地図上の場所を、国土地理院地図で確認できます。`
-    : '地図上の記号を現地で確かめてみましょう。';
-  nextQuestionButton.textContent = '地図に戻って次の記号を選ぶ';
+  gameMessage.textContent = isCorrect ? '正解です。' : `正解は${symbol.label}です。`;
+  nextQuestionButton.textContent = '地図から次の記号を選ぶ';
   nextQuestionButton.hidden = false;
   answerSaving = false;
 }
@@ -319,27 +403,32 @@ async function answerQuiz(answerId) {
 function startLocationLookup() {
   if (!navigator.geolocation) {
     locationStatus.textContent = 'このブラウザーは位置情報に対応していません。';
+    locationStatus.classList.add('is-error');
     return;
   }
 
   locateButton.disabled = true;
+  locationStatus.classList.remove('is-error');
   locationMapLink.hidden = true;
   quizPanel.hidden = true;
-  gameMessage.textContent = '位置情報を取得しています...ブラウザーの確認に応答してください。';
-  locationStatus.textContent = '位置情報の利用を許可すると、現在地周辺の地図を表示します。';
+  gameMessage.textContent = '現在地を取得しています。';
+  locationStatus.textContent = '位置情報を取得中...';
 
   navigator.geolocation.getCurrentPosition(
     async position => {
       const { latitude, longitude, accuracy } = position.coords;
-      locationStatus.textContent =
-        `現在地: 北緯 ${latitude.toFixed(6)}°・東経 ${longitude.toFixed(6)}°（精度 約${Math.round(accuracy)}m）`;
+      currentLocation = { latitude, longitude };
+      locationStatus.textContent = `精度 約${Math.round(accuracy)}m`;
       setLocationMapLink(latitude, longitude);
       try {
         await initializeMap(latitude, longitude);
-        gameMessage.textContent = '地図上の地図記号をタップして、何を表すか答えましょう。';
+        locateButton.textContent = '現在地を更新';
+        returnToLocationButton.hidden = false;
+        gameMessage.textContent = '地図上の記号を選んでください。';
       } catch (error) {
         console.error('GSI vector map loading failed:', error);
         locationStatus.textContent = `地図を表示できませんでした: ${error.message}`;
+        locationStatus.classList.add('is-error');
         gameMessage.textContent = '地図を読み込めませんでした。時間をおいて再度お試しください。';
         locationMapPreview.hidden = true;
         mapInitialization = null;
@@ -355,6 +444,7 @@ function startLocationLookup() {
       };
       locationStatus.textContent = messages[error.code]
         ?? '位置情報を取得できませんでした。時間をおいてもう一度お試しください。';
+      locationStatus.classList.add('is-error');
       gameMessage.textContent = '位置情報を取得できませんでした。';
       locateButton.disabled = false;
     },
@@ -363,6 +453,12 @@ function startLocationLookup() {
 }
 
 locateButton.addEventListener('click', startLocationLookup);
+returnToLocationButton.addEventListener('click', returnToCurrentLocation);
+masteredSymbolsButton.addEventListener('click', () => {
+  void renderMasteredSymbols();
+  masteredSymbolsDialog.showModal();
+});
+closeMasteredSymbolsButton.addEventListener('click', () => masteredSymbolsDialog.close());
 quizChoices.addEventListener('click', event => {
   const choice = event.target.closest('button[data-answer]');
   if (choice) void answerQuiz(choice.dataset.answer);
