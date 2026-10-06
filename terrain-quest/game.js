@@ -225,6 +225,8 @@ async function initializeMap(latitude, longitude) {
         currentLocationMarker = new window.maplibregl.Marker({ element: markerElement })
           .setLngLat([longitude, latitude])
           .addTo(map);
+        document.body.classList.add('map-ready');
+        map.resize();
         resolve();
       });
       map.on('error', event => {
@@ -252,12 +254,12 @@ function openSymbolQuestion(symbol, coordinate) {
   selectedSymbol = symbol;
   answered = false;
   quizPanel.hidden = false;
-  quizQuestion.textContent = 'この地図記号は何を表しているでしょう？';
+  quizQuestion.textContent = 'この記号は？';
   quizFeedback.textContent = '';
   nextQuestionButton.hidden = true;
   renderChoices(symbol);
   setLocationMapLink(coordinate.lat, coordinate.lng);
-  gameMessage.textContent = '地図上で記号を選びました。4つの答えから選択してください。';
+  gameMessage.textContent = '4つの答えから選んでください。';
 }
 
 async function answerQuiz(answerId) {
@@ -267,8 +269,8 @@ async function answerQuiz(answerId) {
   const symbol = selectedSymbol;
   await scoreProgressReady;
   quizRecordStatus.textContent = cloudMode
-    ? '回答をFirestoreに保存しています...'
-    : '回答をこの端末に保存しています...';
+    ? 'Firestoreに保存中...'
+    : '端末に保存中...';
   const isCorrect = answerId === symbol.id;
   quizChoices.querySelectorAll('button').forEach(button => {
     button.disabled = true;
@@ -300,18 +302,14 @@ async function answerQuiz(answerId) {
   answerCount += 1;
   quizScore.textContent = `累計 ${currentScore}点`;
   const resultText = isCorrect
-    ? result.pointsAwarded === 100
-      ? '初めて正解した記号です。100点！'
-      : `知っている記号に正解しました。${result.pointsAwarded}点！`
-    : `正解は「${symbol.label}」です。次に見かけたら確かめてみましょう。`;
+    ? `+${result.pointsAwarded}点`
+    : `答え：${symbol.label}`;
   quizFeedback.textContent = isCorrect
-    ? `正解！「${symbol.label}」の記号です。${resultText}`
+    ? `正解！${resultText}`
     : `不正解。${resultText}`;
   quizCount.textContent = `${answerCount}問回答`;
-  gameMessage.textContent = isCorrect
-    ? `地図上の場所を、国土地理院地図で確認できます。`
-    : '地図上の記号を現地で確かめてみましょう。';
-  nextQuestionButton.textContent = '地図に戻って次の記号を選ぶ';
+  gameMessage.textContent = isCorrect ? '正解です。' : `正解は${symbol.label}です。`;
+  nextQuestionButton.textContent = '地図から次の記号を選ぶ';
   nextQuestionButton.hidden = false;
   answerSaving = false;
 }
@@ -319,27 +317,30 @@ async function answerQuiz(answerId) {
 function startLocationLookup() {
   if (!navigator.geolocation) {
     locationStatus.textContent = 'このブラウザーは位置情報に対応していません。';
+    locationStatus.classList.add('is-error');
     return;
   }
 
   locateButton.disabled = true;
+  locationStatus.classList.remove('is-error');
   locationMapLink.hidden = true;
   quizPanel.hidden = true;
-  gameMessage.textContent = '位置情報を取得しています...ブラウザーの確認に応答してください。';
-  locationStatus.textContent = '位置情報の利用を許可すると、現在地周辺の地図を表示します。';
+  gameMessage.textContent = '現在地を取得しています。';
+  locationStatus.textContent = '位置情報を取得中...';
 
   navigator.geolocation.getCurrentPosition(
     async position => {
       const { latitude, longitude, accuracy } = position.coords;
-      locationStatus.textContent =
-        `現在地: 北緯 ${latitude.toFixed(6)}°・東経 ${longitude.toFixed(6)}°（精度 約${Math.round(accuracy)}m）`;
+      locationStatus.textContent = `精度 約${Math.round(accuracy)}m`;
       setLocationMapLink(latitude, longitude);
       try {
         await initializeMap(latitude, longitude);
-        gameMessage.textContent = '地図上の地図記号をタップして、何を表すか答えましょう。';
+        locateButton.textContent = '現在地を更新';
+        gameMessage.textContent = '地図上の記号を選んでください。';
       } catch (error) {
         console.error('GSI vector map loading failed:', error);
         locationStatus.textContent = `地図を表示できませんでした: ${error.message}`;
+        locationStatus.classList.add('is-error');
         gameMessage.textContent = '地図を読み込めませんでした。時間をおいて再度お試しください。';
         locationMapPreview.hidden = true;
         mapInitialization = null;
@@ -355,6 +356,7 @@ function startLocationLookup() {
       };
       locationStatus.textContent = messages[error.code]
         ?? '位置情報を取得できませんでした。時間をおいてもう一度お試しください。';
+      locationStatus.classList.add('is-error');
       gameMessage.textContent = '位置情報を取得できませんでした。';
       locateButton.disabled = false;
     },
