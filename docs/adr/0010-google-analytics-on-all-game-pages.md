@@ -13,6 +13,7 @@
 - 公開するゲームページには、既存のGA4 Measurement ID `G-FDT7JTRCNE` を使用したタグを設置する。
 - `terrain-quest/index.html` にも同じGA4タグを設置する。
 - Firebaseデモなど、既存方針で計測対象外とされているページの扱いは変更しない。
+- ゲーム固有の採用理由や実装チェックは、それぞれのゲームのADRにも記録する（例: [地図記号クイズ ADR-0002](../../terrain-quest/docs/adr/0002-google-analytics.md)）。
 
 ## 理由
 - ゲームごとの利用状況を比較でき、アクセス計測の抜けを防げる。
