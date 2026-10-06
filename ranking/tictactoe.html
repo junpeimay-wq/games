@@ -13,14 +13,13 @@
 <body data-game="tictactoe">
   <header>
     <h1>⭕ 〇×ゲーム ランキング</h1>
-    <a href="../tictactoe/index.html">← 〇×ゲームへ戻る</a>
+    <nav class="ranking-breadcrumb" aria-label="階層">
+      <a href="index.html">← 全ゲームランキング</a>
+      <span aria-current="page">› 〇×ゲーム</span>
+      <a class="ranking-game-link" href="../tictactoe/">〇×ゲームを遊ぶ</a>
+    </nav>
   </header>
   <main>
-    <nav class="ranking-nav" aria-label="ランキング">
-      <a href="index.html">全ゲーム</a>
-      <a href="snake.html">スネークゲーム</a>
-      <a href="block-puzzle.html">ブロックパズル</a>
-    </nav>
     <p class="intro">〇×ゲームの連勝数ランキングです。敗北または引き分けで連勝数はリセットされます。</p>
     <ol class="ranking-list" id="ranking-list" aria-live="polite">
       <li class="empty">読み込み中...</li>

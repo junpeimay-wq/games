@@ -41,15 +41,26 @@ a {
   line-height: 1.6;
 }
 
-.ranking-nav {
+.ranking-breadcrumb {
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin: 18px 0;
+  align-items: center;
+  gap: 8px;
+  color: #aaa;
 }
 
-.ranking-nav a {
-  padding: 10px 14px;
+.ranking-breadcrumb a {
+  text-decoration: none;
+}
+
+.ranking-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.ranking-game-link {
+  margin-left: auto;
+  padding: 8px 12px;
   background: #16213e;
   border: 1px solid #00ff88;
   border-radius: 8px;

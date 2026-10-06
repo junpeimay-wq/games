@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🏆 ゲーム別ランキング - GAME ARCADE</title>
-  <meta name="description" content="スネーク、戦略的〇×ゲーム、ブロックパズルのゲーム別ランキング。各ゲームの上位3人のスコアを一覧し、個別ページでトップ10を確認できます。">
+  <meta name="description" content="スネーク、戦略的〇×ゲーム、ブロックパズル、地図記号クイズのゲーム別ランキング。各ゲームの上位3人のスコアを一覧し、個別ページでトップ10を確認できます。">
   <link rel="canonical" href="https://junpeimay-wq.github.io/games/ranking/">
   <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -13,7 +13,10 @@
 <body>
   <header>
     <h1>🏆 ゲーム別ランキング</h1>
-    <a href="../index.html">← アーケードへ戻る</a>
+    <nav class="ranking-breadcrumb" aria-label="階層">
+      <a href="../index.html">GAME ARCADE</a>
+      <span aria-current="page">› ランキング</span>
+    </nav>
   </header>
   <main>
     <p class="intro">採点基準が異なるため、ランキングはゲームごとに表示します。</p>
@@ -41,6 +44,15 @@
         <a href="block-puzzle.html">Top 10 →</a>
       </header>
       <ol class="ranking-list" aria-label="ブロックパズル Top 3">
+        <li class="empty">読み込み中...</li>
+      </ol>
+    </section>
+    <section class="game-ranking" data-game="terrain-quest">
+      <header class="game-ranking-header">
+        <h2>🗺️ まちの地図記号クイズ Top 3（累計スコア）</h2>
+        <a href="terrain-quest.html">Top 10 →</a>
+      </header>
+      <ol class="ranking-list" aria-label="地図記号クイズ Top 3">
         <li class="empty">読み込み中...</li>
       </ol>
     </section>

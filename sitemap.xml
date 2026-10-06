@@ -13,6 +13,9 @@
     <loc>https://junpeimay-wq.github.io/games/block-puzzle/</loc>
   </url>
   <url>
+    <loc>https://junpeimay-wq.github.io/games/terrain-quest/</loc>
+  </url>
+  <url>
     <loc>https://junpeimay-wq.github.io/games/ranking/</loc>
   </url>
   <url>
@@ -23,5 +26,8 @@
   </url>
   <url>
     <loc>https://junpeimay-wq.github.io/games/ranking/block-puzzle.html</loc>
+  </url>
+  <url>
+    <loc>https://junpeimay-wq.github.io/games/ranking/terrain-quest.html</loc>
   </url>
 </urlset>

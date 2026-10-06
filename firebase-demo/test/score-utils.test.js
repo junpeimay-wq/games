@@ -2,10 +2,45 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   formatScore,
+  GAME_LABELS,
   isNewHighScore,
   nextTicTacToeStreak,
-  rankScores
+  rankScores,
+  updateMapSymbolProgress
 } from '../score-utils.js';
+
+test('registers the map quiz as a score-capable game', () => {
+  assert.equal(GAME_LABELS['terrain-quest'], 'まちの地図記号クイズ');
+});
+
+test('awards map symbol points once for first mastery and ten for later correct answers', () => {
+  const wrong = updateMapSymbolProgress(null, '3218', false);
+  assert.deepEqual(wrong, {
+    attempts: 1,
+    correctAnswers: 0,
+    mastered: false,
+    knownBefore: false,
+    pointsAwarded: 0
+  });
+
+  const firstCorrect = updateMapSymbolProgress(wrong, '3218', true);
+  assert.equal(firstCorrect.pointsAwarded, 100);
+  assert.equal(firstCorrect.mastered, true);
+  const repeatCorrect = updateMapSymbolProgress(firstCorrect, '3218', true);
+  assert.equal(repeatCorrect.pointsAwarded, 10);
+  assert.equal(repeatCorrect.correctAnswers, 2);
+  assert.equal(repeatCorrect.attempts, 3);
+});
+
+test('rejects invalid map symbol progress updates', () => {
+  assert.throws(() => updateMapSymbolProgress(null, 'bad', true), RangeError);
+  assert.throws(() => updateMapSymbolProgress(null, '3218', 1), RangeError);
+  assert.throws(() => updateMapSymbolProgress({
+    attempts: 1,
+    correctAnswers: 0,
+    mastered: true
+  }, '3218', true), RangeError);
+});
 
 test('only a strictly higher non-negative integer is a new high score', () => {
   assert.equal(isNewHighScore(101, 100), true);

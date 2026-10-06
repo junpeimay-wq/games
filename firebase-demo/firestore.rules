@@ -12,6 +12,33 @@ service cloud.firestore {
                     && request.resource.data.score > resource.data.score;
     }
 
+    match /users/{userId}/mapSymbolProgress/{progressId} {
+      allow read: if isProgressOwner(userId, progressId);
+      allow create: if isProgressOwner(userId, progressId)
+                    && validSymbolProgress(userId)
+                    && request.resource.data.symbols.keys().size() == 1
+                    && validNewSymbol(request.resource.data);
+      allow update: if isProgressOwner(userId, progressId)
+                    && validSymbolProgress(userId)
+                    && resource.data.uid == userId
+                    && request.resource.data.symbols.diff(resource.data.symbols)
+                       .affectedKeys().size() == 1
+                    && request.resource.data.symbols.diff(resource.data.symbols)
+                       .affectedKeys().hasOnly([
+                         request.resource.data.lastUpdatedSymbol
+                       ])
+                    && validSymbolAnswerAdvance(
+                      resource.data.symbols,
+                      request.resource.data
+                    );
+    }
+
+    function isProgressOwner(userId, progressId) {
+      return request.auth != null
+             && request.auth.uid == userId
+             && progressId == 'progress';
+    }
+
     function validScore() {
       return request.auth != null
              && request.resource.data.uid == request.auth.uid
@@ -24,12 +51,78 @@ service cloud.firestore {
              && request.resource.data.name is string
              && request.resource.data.photoURL is string
              && request.resource.data.game in [
-               'snake', 'tictactoe', 'block-puzzle'
+               'snake', 'tictactoe', 'block-puzzle', 'terrain-quest'
              ]
              && request.resource.data.score is int
              && request.resource.data.score >= 0
              && request.resource.data.updatedAt is timestamp
              && request.resource.data.updatedAt == request.time;
+    }
+
+    function validSymbolProgress(userId) {
+      return request.resource.data.keys().hasAll([
+               'uid', 'symbols', 'lastUpdatedSymbol', 'updatedAt'
+             ])
+             && request.resource.data.keys().hasOnly([
+               'uid', 'symbols', 'lastUpdatedSymbol', 'updatedAt'
+             ])
+             && request.resource.data.uid == userId
+             && request.resource.data.symbols is map
+             && request.resource.data.lastUpdatedSymbol in [
+               '3201', '3202', '3203', '3204', '3205', '3206',
+               '3211', '3212', '3213', '3215', '3216', '3217',
+               '3218', '3221', '3231', '3232', '3241', '3242',
+               '3243', '3244', '3261', '4101', '4102', '4103',
+               '4104', '4105', '6301', '6331', '6332', '6342',
+               '6351', '6361', '6362', '6373', '6381', '8103',
+               '8105'
+             ]
+             && request.resource.data.symbols.keys().hasAny([
+               request.resource.data.lastUpdatedSymbol
+             ])
+             && request.resource.data.symbols.keys().hasOnly([
+               '3201', '3202', '3203', '3204', '3205', '3206',
+               '3211', '3212', '3213', '3215', '3216', '3217',
+               '3218', '3221', '3231', '3232', '3241', '3242',
+               '3243', '3244', '3261', '4101', '4102', '4103',
+               '4104', '4105', '6301', '6331', '6332', '6342',
+               '6351', '6361', '6362', '6373', '6381', '8103',
+               '8105'
+             ])
+             && request.resource.data.updatedAt is timestamp
+             && request.resource.data.updatedAt == request.time;
+    }
+
+    function validSymbolEntry(entry) {
+      return entry is map
+             && entry.keys().hasAll(['attempts', 'correctAnswers', 'mastered'])
+             && entry.keys().hasOnly(['attempts', 'correctAnswers', 'mastered'])
+             && entry.attempts is int
+             && entry.attempts >= 1
+             && entry.correctAnswers is int
+             && entry.correctAnswers >= 0
+             && entry.correctAnswers <= entry.attempts
+             && entry.mastered is bool
+             && entry.mastered == (entry.correctAnswers > 0);
+    }
+
+    function validNewSymbol(progress) {
+      let entry = progress.symbols[progress.lastUpdatedSymbol];
+      return validSymbolEntry(entry)
+             && entry.attempts == 1;
+    }
+
+    function validSymbolAnswerAdvance(previousSymbols, nextProgress) {
+      let symbolId = nextProgress.lastUpdatedSymbol;
+      let previous = previousSymbols.get(symbolId, null);
+      let next = nextProgress.symbols[symbolId];
+      return validSymbolEntry(next)
+             && (previous == null
+                 ? next.attempts == 1
+                 : validSymbolEntry(previous)
+                   && next.attempts == previous.attempts + 1
+                   && (next.correctAnswers == previous.correctAnswers
+                       || next.correctAnswers == previous.correctAnswers + 1));
     }
   }
 }

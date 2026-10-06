@@ -72,7 +72,7 @@ const firebaseConfig = {
 ```bash
 cd ~/games/firebase-demo
 npx firebase-tools login
-npx firebase-tools deploy --only firestore
+npx firebase-tools deploy --only firestore --project YOUR_PROJECT_ID
 ```
 
 Firestore Emulatorで許可・拒否のテストを実行できます（Node.js 22以上、npm、Javaが必要です）。
@@ -83,7 +83,7 @@ npm ci
 npm test
 ```
 
-このルールは公開読み取りを許可し、認証済みユーザー自身のゲーム別スコア文書について、初回登録と自己ベストを超える更新だけを許可します。データ形式・ゲーム識別子・スコア・サーバー時刻を検証します。ブラウザーから送信されるスコア自体の正当性までは検証できないため、不正スコアも防ぎたい場合は、信頼できるサーバー側でスコアを検証してください。
+このルールは公開読み取りを許可し、認証済みユーザー自身のゲーム別スコア文書について、初回登録と許可された更新だけを許可します。データ形式・ゲーム識別子（`snake` / `tictactoe` / `block-puzzle` / `terrain-quest`）・スコア・サーバー時刻を検証します。地図記号クイズはユーザーごとに1文書（`users/{uid}/mapSymbolProgress/progress`）を作り、その `symbols` マップに地図記号の種類ごとの回答数・正解数・習得状態を集約します。`lastUpdatedSymbol` により、1回の回答で更新できる記号種別は1つに制限され、回答数・正解数の進行もルールで検証されます。施設や地図上の地点ごとには記録せず、本人だけが読み書きできます。クイズ回答はスコア文書と合わせてトランザクションで記録されます。ブラウザーから送信される回答自体の正当性までは検証できないため、不正スコアも防ぎたい場合は、信頼できるサーバー側で回答を検証してください。未認証時の学習記録とスコアは端末の `localStorage` に保存されます。
 
 ---
 
@@ -119,7 +119,7 @@ scores（コレクション）
        ├─ uid:       string    ユーザーID（Firebase Auth UID）
        ├─ name:      string    表示名（Googleアカウント名）
        ├─ photoURL:  string    アバター画像URL
-       ├─ game:      string    ゲーム識別子 (snake / tictactoe / block-puzzle)
+       ├─ game:      string    ゲーム識別子 (snake / tictactoe / block-puzzle / terrain-quest)
        ├─ score:     number    スコア
        └─ updatedAt: timestamp ハイスコア更新日時
 ```
