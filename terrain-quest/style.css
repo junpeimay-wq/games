@@ -86,6 +86,7 @@ h1 {
 }
 
 .locate-button,
+.return-to-location,
 .next-question {
   min-height: 46px;
   padding: 8px 18px;
@@ -103,7 +104,18 @@ h1 {
   opacity: 0.7;
 }
 
+.return-to-location {
+  min-height: 40px;
+  border-color: #75e5ff;
+  color: #75e5ff;
+}
+
+.return-to-location[hidden] {
+  display: none;
+}
+
 .locate-button:focus-visible,
+.return-to-location:focus-visible,
 .next-question:focus-visible,
 .symbol-choice:focus-visible {
   outline: 3px solid #fff;
@@ -360,6 +372,19 @@ h1 {
     font-size: 0.82rem;
   }
 
+  .map-controls {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .return-to-location {
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 0.76rem;
+  }
+
   .location-status {
     font-size: 0.68rem;
   }
@@ -478,13 +503,22 @@ h1 {
     border: 0;
   }
 
+  body.map-ready .map-controls {
+    z-index: 2;
+    flex: 0 0 auto;
+  }
+
   body.map-ready .locate-button {
     position: static;
-    align-self: flex-end;
-    flex: 0 0 auto;
     min-height: 34px;
     padding: 4px 8px;
     background: #10152b;
+    font-size: 0.7rem;
+  }
+
+  body.map-ready .return-to-location {
+    min-height: 34px;
+    padding: 4px 8px;
     font-size: 0.7rem;
   }
 

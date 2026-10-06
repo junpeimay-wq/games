@@ -20,6 +20,7 @@ const mapElement = document.getElementById('symbol-map');
 const locationMapPreview = document.getElementById('location-map-preview');
 const gameMessage = document.getElementById('game-message');
 const locateButton = document.getElementById('locate-button');
+const returnToLocationButton = document.getElementById('return-to-location');
 const locationStatus = document.getElementById('location-status');
 const locationMapLink = document.getElementById('location-map-link');
 const quizPanel = document.getElementById('quiz-panel');
@@ -40,6 +41,7 @@ let cloudMode = false;
 let currentScore = 0;
 let selectedSymbol = null;
 let currentLocationMarker = null;
+let currentLocation = null;
 let answered = false;
 let answerSaving = false;
 let answerCount = 0;
@@ -137,6 +139,12 @@ function setLocationMapLink(latitude, longitude) {
   locationMapLink.href =
     `https://maps.gsi.go.jp/#${MAP_ZOOM}/${latitude.toFixed(6)}/${longitude.toFixed(6)}`;
   locationMapLink.hidden = false;
+}
+
+function returnToCurrentLocation() {
+  if (!map || !currentLocation) return;
+  map.flyTo({ center: [currentLocation.longitude, currentLocation.latitude] });
+  gameMessage.textContent = '現在地に戻りました。地図上の記号を選んでください。';
 }
 
 function addSymbolHitLayer() {
@@ -331,11 +339,13 @@ function startLocationLookup() {
   navigator.geolocation.getCurrentPosition(
     async position => {
       const { latitude, longitude, accuracy } = position.coords;
+      currentLocation = { latitude, longitude };
       locationStatus.textContent = `精度 約${Math.round(accuracy)}m`;
       setLocationMapLink(latitude, longitude);
       try {
         await initializeMap(latitude, longitude);
         locateButton.textContent = '現在地を更新';
+        returnToLocationButton.hidden = false;
         gameMessage.textContent = '地図上の記号を選んでください。';
       } catch (error) {
         console.error('GSI vector map loading failed:', error);
@@ -365,6 +375,7 @@ function startLocationLookup() {
 }
 
 locateButton.addEventListener('click', startLocationLookup);
+returnToLocationButton.addEventListener('click', returnToCurrentLocation);
 quizChoices.addEventListener('click', event => {
   const choice = event.target.closest('button[data-answer]');
   if (choice) void answerQuiz(choice.dataset.answer);
