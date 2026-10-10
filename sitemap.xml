@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://junpeimay-wq.github.io/games/</loc>
+    <loc>https://junpeimay-games.web.app/</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/snake/</loc>
+    <loc>https://junpeimay-games.web.app/snake/</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/tictactoe/</loc>
+    <loc>https://junpeimay-games.web.app/tictactoe/</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/block-puzzle/</loc>
+    <loc>https://junpeimay-games.web.app/block-puzzle/</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/terrain-quest/</loc>
+    <loc>https://junpeimay-games.web.app/terrain-quest/</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/ranking/</loc>
+    <loc>https://junpeimay-games.web.app/ranking/</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/ranking/snake.html</loc>
+    <loc>https://junpeimay-games.web.app/ranking/snake.html</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/ranking/tictactoe.html</loc>
+    <loc>https://junpeimay-games.web.app/ranking/tictactoe.html</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/ranking/block-puzzle.html</loc>
+    <loc>https://junpeimay-games.web.app/ranking/block-puzzle.html</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
   <url>
-    <loc>https://junpeimay-wq.github.io/games/ranking/terrain-quest.html</loc>
+    <loc>https://junpeimay-games.web.app/ranking/terrain-quest.html</loc>
+    <lastmod>2026-10-10</lastmod>
   </url>
 </urlset>
