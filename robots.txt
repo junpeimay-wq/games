@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://junpeimay-wq.github.io/games/sitemap.xml
+Sitemap: https://junpeimay-wq.github.io/sitemap.xml
