@@ -32,13 +32,14 @@ dbReq.onupgradeneeded = (e) => {
 dbReq.onsuccess = (e) => {
   db = e.target.result;
   loadBestScore();
-  loadHighScore('block-puzzle').then(score => {
-    if (score !== null) {
-      bestScore = score;
-      bestEl.textContent = bestScore;
-    }
-  }).catch(error => console.error('Block puzzle cloud score error:', error));
 };
+
+loadHighScore('block-puzzle').then(score => {
+  if (score !== null) {
+    bestScore = score;
+    document.getElementById('best').textContent = bestScore;
+  }
+}).catch(error => console.error('Block puzzle cloud score error:', error));
 
 function loadBestScore() {
   if (!db) return;

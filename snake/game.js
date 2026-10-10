@@ -19,17 +19,18 @@ request.onupgradeneeded = function(e) {
 request.onsuccess = function(e) {
   db = e.target.result;
   loadBestScore();
-  loadHighScore('snake').then(score => {
-    if (score !== null) {
-      best = score;
-      document.getElementById('best').textContent = best;
-    }
-  }).catch(error => console.error('Snake cloud score error:', error));
 };
 
 request.onerror = function(e) {
   console.error('IndexedDB error:', e.target.error);
 };
+
+loadHighScore('snake').then(score => {
+  if (score !== null) {
+    best = score;
+    document.getElementById('best').textContent = best;
+  }
+}).catch(error => console.error('Snake cloud score error:', error));
 
 function loadBestScore() {
   const transaction = db.transaction(['scores'], 'readonly');
