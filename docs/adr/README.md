@@ -12,5 +12,5 @@
 | [0008](0008-visual-change-proof-in-pull-requests.md) | デザイン変更時のPRスクリーンショット証跡 | 承認済み |
 | [0009](0009-local-map-symbol-quiz.md) | 地図上の記号を選ぶ地図記号クイズ | 承認済み |
 | [0010](0010-google-analytics-on-all-game-pages.md) | 全公開ゲームページへのGoogle Analytics導入 | 承認済み・実装済み |
-| [0011](0011-firebase-hosting-migration.md) | GitHub Pages から Firebase Hosting への移行 | 承認済み |
-| [0012](0012-firebase-hosting-github-actions.md) | Firebase Hosting 自動デプロイと旧ユーザーサイトリポジトリの廃止 | 承認済み |
+| [0011](0011-firebase-hosting-migration.md) | GitHub Pages から Firebase Hosting への移行 | 承認済み・実装済み |
+| [0012](0012-firebase-hosting-github-actions.md) | Firebase Hosting 自動デプロイと旧ユーザーサイトリポジトリの廃止 | 承認済み・実装済み |

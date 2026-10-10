@@ -7,13 +7,13 @@
 2026-10-03
 
 ## コンテキスト
-GitHub Pages上の自動生成サイトマップにはADRやエージェント向け手順書など、検索結果に掲載する必要のない文書・補助ファイルまで含まれていた。Google Search Consoleに提出するサイトマップをゲーム本編とランキングページに限定し、設計上のネタバレを公開対象から外す必要がある。
+静的ホスティング上の自動生成サイトマップにはADRやエージェント向け手順書など、検索結果に掲載する必要のない文書・補助ファイルまで含まれていた。Google Search Consoleに提出するサイトマップをゲーム本編とランキングページに限定し、設計上のネタバレを公開対象から外す必要がある。ホスティングはその後Firebase Hostingへ移行した。
 
 ## 決定
-- GitHub Pages/JekyllのサイトURLとbaseurlを明示し、プロジェクトサイト `https://junpeimay-wq.github.io/games` としてURLを生成する。
+- Firebase Hostingの公開URLを `https://junpeimay-games.web.app` とし、プロジェクトサイト用の`baseurl`は使用しない。
 - 公開用 `sitemap.xml` はルート、各ゲーム、ゲーム別ランキングの8ページのみを列挙する。
 - `robots.txt` から公開用サイトマップの絶対URLを案内する。
-- ルートおよび各ゲーム・デモ配下の `docs/adr` と `AGENTS.md` はJekyllの公開出力から除外し、公開サイトマップにも含めない。
+- ルートおよび各ゲーム・デモ配下の `docs/adr` と `AGENTS.md` はFirebase Hostingの公開対象から除外し、公開サイトマップにも含めない。
 
 ## 理由
 - サイトマップのURLを検索対象にしたいページに絞り、Google Search Consoleで管理しやすくする。
@@ -22,5 +22,5 @@ GitHub Pages上の自動生成サイトマップにはADRやエージェント�
 
 ## トレードオフ
 - 公開ページを追加・削除した場合は `sitemap.xml` も更新する必要がある。
-- Jekyllの除外は公開ビルドの対象を制御するものであり、ADRのソースファイル自体はGitHubリポジトリを閲覧できる人には引き続き見える。
-- Search Consoleで新しいサイトマップを読み取るには、変更をGitHub Pagesに公開した後、Search Console側で再取得させる必要がある。
+- Hostingの除外設定は公開対象を制御するものであり、ADRのソースファイル自体はGitHubリポジトリを閲覧できる人には引き続き見える。
+- Search Consoleで新しいサイトマップを読み取るには、変更をFirebase Hostingに公開した後、Search Console側で再取得させる必要がある。
