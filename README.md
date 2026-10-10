@@ -2,16 +2,16 @@
 
 ブラウザで動くミニゲーム集です。
 
-🌐 **公開URL**: https://junpeimay-wq.github.io/games/
+🌐 **公開URL**: https://junpeimay-games.web.app/
 
 ## ゲーム一覧
 
 | ゲーム | 説明 | プレイ |
 |--------|------|--------|
-| 🐍 スネーク | 食べ物を食べて長くなれ！ | [遊ぶ](https://junpeimay-wq.github.io/games/snake/index.html) |
-| ⭕ 戦略的〇×ゲーム | 相手の駒を1回だけ上書きできる思考型マルバツゲーム | [遊ぶ](https://junpeimay-wq.github.io/games/tictactoe/index.html) |
-| 🧩 8x8ブロックパズル | ブロックを配置して縦横ライン消去！同時消しボーナス付き | [遊ぶ](https://junpeimay-wq.github.io/games/block-puzzle/index.html) |
-| 🗺️ まちの地図記号クイズ | 地図上の記号を選び、4択で意味を学ぶ。正解記号ごとに100点、既知の記号は10点 | [遊ぶ](https://junpeimay-wq.github.io/games/terrain-quest/) |
+| 🐍 スネーク | 食べ物を食べて長くなれ！ | [遊ぶ](https://junpeimay-games.web.app/snake/) |
+| ⭕ 戦略的〇×ゲーム | 相手の駒を1回だけ上書きできる思考型マルバツゲーム | [遊ぶ](https://junpeimay-games.web.app/tictactoe/) |
+| 🧩 8x8ブロックパズル | ブロックを配置して縦横ライン消去！同時消しボーナス付き | [遊ぶ](https://junpeimay-games.web.app/block-puzzle/) |
+| 🗺️ まちの地図記号クイズ | 地図上の記号を選び、4択で意味を学ぶ。正解記号ごとに100点、既知の記号は10点 | [遊ぶ](https://junpeimay-games.web.app/terrain-quest/) |
 
 ## 操作方法
 
@@ -22,7 +22,7 @@
 
 - HTML / CSS / JavaScript（ライブラリなし）
 - Canvas API / DOM API / IndexedDB
-- GitHub Pages でホスティング
+- Firebase Hosting でホスティング
 
 ## リリース・バージョン
 

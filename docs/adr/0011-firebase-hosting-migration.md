@@ -2,7 +2,7 @@
 
 ## ステータス
 
-承認済み
+承認済み・実装済み
 
 ## 日付
 
@@ -17,7 +17,14 @@
 - Web サイトのホスティング先を GitHub Pages から Firebase Hosting (`junpeimay-games.web.app` / `junpeimay-games.firebaseapp.com`) へ移行する。
 - リポジトリルートに `firebase.json` を配置し、`hosting` 設定を統一管理する。
 - `sitemap.xml` に対して `Content-Type: application/xml; charset=utf-8` を明示的に返すヘッダールールを設定する。
-- Firebase CLI (`firebase-tools`) または GitHub Actions を用いてデプロイを自動化・管理する。
+- ルートの `firebase.json` で公開対象とレスポンスヘッダーを管理し、GitHub Actionsを用いてデプロイを自動化・管理する。
+
+## 実装チェック
+
+- [x] ルートに `firebase.json` を配置し、Firebase Hostingの公開対象を設定する。
+- [x] `sitemap.xml` に `Content-Type: application/xml; charset=utf-8` を返すヘッダールールを設定する。
+- [x] `main` へのPushでFirebase HostingへデプロイするGitHub Actionsを追加する。
+- [x] 公開ページのcanonical、README、Jekyll設定をFirebase HostingのURLへ更新する。
 
 ## 理由
 

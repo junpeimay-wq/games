@@ -2,7 +2,7 @@
 
 ## ステータス
 
-承認済み
+承認済み・実装済み
 
 ## 日付
 
@@ -17,6 +17,12 @@
 - `.github/workflows/firebase-hosting-deploy.yml` を作成し、`main` ブランチへの Push 時に `FirebaseExtended/action-hosting-deploy` を用いて Firebase Hosting へ自動デプロイする。
 - デプロイに必要なサービスアカウントキーは GitHub リポジトリの Secret `FIREBASE_SERVICE_ACCOUNT_JUNPEIMAY_GAMES` として設定・管理する。
 - GitHub Pages 前提の管理用リポジトリ `junpeimay-wq.github.io` は廃止対象とする。
+
+## 実装チェック
+
+- [x] `.github/workflows/firebase-hosting-deploy.yml` を追加した。
+- [x] `FIREBASE_SERVICE_ACCOUNT_JUNPEIMAY_GAMES` SecretをWorkflowから参照する設定にした。
+- [x] `junpeimay-games.web.app` をsitemap、robots.txt、canonicalの公開URLとして設定した。
 
 ## 理由
 
