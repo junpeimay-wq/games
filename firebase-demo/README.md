@@ -5,7 +5,7 @@
 ## 前提
 
 - Google アカウント
-- GitHubリポジトリ（GitHub Pages で公開済み）
+- Firebase Hostingで公開するゲームアーケードのリポジトリ
 
 ---
 
@@ -49,11 +49,11 @@ const firebaseConfig = {
 4. **「有効にする」** トグルをオンにし、プロジェクトのサポートメールを入力
 5. **「保存」**
 
-### 承認済みドメインの追加（GitHub Pages 用）
+### 承認済みドメインの追加（Firebase Hosting 用）
 
 1. 「Authentication」→ **「設定」** タブを開く
 2. **「承認済みドメイン」** セクション → **「ドメインを追加」**
-3. `junpeimay-wq.github.io` を入力して追加
+3. `junpeimay-games.web.app` を入力して追加
 
 ---
 
@@ -107,7 +107,7 @@ git commit -m "feat: Firebaseグローバルランキング機能の追加"
 git push
 ```
 
-公開URL: `https://junpeimay-wq.github.io/games/firebase-demo/`
+公開URL: `https://junpeimay-games.web.app/firebase-demo/`
 
 ---
 

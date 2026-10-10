@@ -1,5 +1,5 @@
-url: https://junpeimay-wq.github.io
-baseurl: /games
+url: https://junpeimay-games.web.app
+baseurl: ""
 
 exclude:
   - AGENTS.md
