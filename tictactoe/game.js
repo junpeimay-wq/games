@@ -1,4 +1,4 @@
-import { recordHighScore } from '../firebase-demo/score-service.js';
+import { loadHighScore, recordHighScore } from '../firebase-demo/score-service.js';
 import { nextTicTacToeStreak } from '../firebase-demo/score-utils.js';
 
 let board = Array(9).fill(null);
@@ -285,5 +285,13 @@ cells.forEach((cell, idx) => {
 });
 
 resetBtn.addEventListener('click', initGame);
+
+loadHighScore('tictactoe').then(score => {
+  if (score !== null) {
+    bestStreak = score;
+    localStorage.setItem('tictactoe-best-streak', String(bestStreak));
+    updateStreakDisplay();
+  }
+}).catch(error => console.error('Tic-tac-toe cloud score error:', error));
 
 initGame();
