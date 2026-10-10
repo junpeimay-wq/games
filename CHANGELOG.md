@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/junpeimay-wq/games/compare/v0.2.2...v0.3.0) (2026-10-10)
+
+
+### Features
+
+* Firebase Hostingへの完全移行・自動デプロイ設定およびADR追加 ([#12](https://github.com/junpeimay-wq/games/issues/12)) ([d77c82f](https://github.com/junpeimay-wq/games/commit/d77c82f39610fb3a7c968a02beb90be415c54326))
+
 ## [0.2.2](https://github.com/junpeimay-wq/games/compare/v0.2.1...v0.2.2) (2026-10-06)
 
 
