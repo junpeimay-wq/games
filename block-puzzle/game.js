@@ -1,4 +1,4 @@
-import { recordHighScore } from '../firebase-demo/score-service.js';
+import { loadHighScore, recordHighScore } from '../firebase-demo/score-service.js';
 import {
   getPerfectClearBonus,
   hasAnyValidMove,
@@ -32,6 +32,12 @@ dbReq.onupgradeneeded = (e) => {
 dbReq.onsuccess = (e) => {
   db = e.target.result;
   loadBestScore();
+  loadHighScore('block-puzzle').then(score => {
+    if (score !== null) {
+      bestScore = score;
+      bestEl.textContent = bestScore;
+    }
+  }).catch(error => console.error('Block puzzle cloud score error:', error));
 };
 
 function loadBestScore() {

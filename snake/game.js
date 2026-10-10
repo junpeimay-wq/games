@@ -1,4 +1,4 @@
-import { recordHighScore } from '../firebase-demo/score-service.js';
+import { loadHighScore, recordHighScore } from '../firebase-demo/score-service.js';
 
 const C = document.getElementById('c');
 const ctx = C.getContext('2d');
@@ -19,6 +19,12 @@ request.onupgradeneeded = function(e) {
 request.onsuccess = function(e) {
   db = e.target.result;
   loadBestScore();
+  loadHighScore('snake').then(score => {
+    if (score !== null) {
+      best = score;
+      document.getElementById('best').textContent = best;
+    }
+  }).catch(error => console.error('Snake cloud score error:', error));
 };
 
 request.onerror = function(e) {

@@ -122,6 +122,23 @@ export async function recordHighScore(game, score, statusElementId = 'ranking-st
   }
 }
 
+export async function loadHighScore(game) {
+  if (!Object.hasOwn(GAME_LABELS, game)) {
+    throw new Error(`Unknown game: ${game}`);
+  }
+  await authReady;
+  const user = currentUser || auth.currentUser;
+  if (!user) return null;
+
+  const snapshot = await getDoc(doc(db, 'scores', `${game}_${user.uid}`));
+  if (!snapshot.exists()) return null;
+  const score = snapshot.data().score;
+  if (!Number.isInteger(score) || score < 0) {
+    throw new Error('Invalid score record.');
+  }
+  return score;
+}
+
 export async function loadMapSymbolCloudProgress() {
   await authReady;
   const user = currentUser || auth.currentUser;
