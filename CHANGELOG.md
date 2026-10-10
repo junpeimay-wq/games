@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/junpeimay-wq/games/compare/v0.3.0...v0.4.0) (2026-10-10)
+
+
+### Features
+
+* Googleログイン済みユーザーのスコアを端末間で同期 ([#16](https://github.com/junpeimay-wq/games/issues/16)) ([0440ea8](https://github.com/junpeimay-wq/games/commit/0440ea8ed771c115e5eff34a0a1e65c5f7de4080))
+
 ## [0.3.0](https://github.com/junpeimay-wq/games/compare/v0.2.2...v0.3.0) (2026-10-10)
 
 
