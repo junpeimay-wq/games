@@ -15,3 +15,4 @@
 | [0011](0011-firebase-hosting-migration.md) | GitHub Pages から Firebase Hosting への移行 | 承認済み・実装済み |
 | [0012](0012-firebase-hosting-github-actions.md) | Firebase Hosting 自動デプロイと旧ユーザーサイトリポジトリの廃止 | 承認済み・実装済み |
 | [0013](0013-authenticated-score-sync.md) | Google認証済みユーザーのスコア端末間同期 | 承認済み・実装済み |
+| [0014](0014-google-login-analytics-event.md) | Googleログイン成功イベントの計測 | 承認済み・実装済み |

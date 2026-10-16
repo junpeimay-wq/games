@@ -1,4 +1,4 @@
-import { auth, db } from './firebase-config.js';
+import { analytics, auth, db } from './firebase-config.js';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -13,6 +13,7 @@ import {
   query,
   where
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { logEvent } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js';
 import { createAvatarElement } from './avatar.js';
 import { formatScore, rankScores } from './score-utils.js';
 
@@ -43,6 +44,7 @@ onAuthStateChanged(auth, (user) => {
 loginBtn.addEventListener('click', async () => {
   try {
     await signInWithPopup(auth, new GoogleAuthProvider());
+    logEvent(analytics, 'google_login');
   } catch (error) {
     console.error('Login error:', error);
     rankingStatus.textContent = `ログインエラー: ${error.message}`;
