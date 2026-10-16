@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/junpeimay-wq/games/compare/v0.5.0...v0.6.0) (2026-10-16)
+
+
+### Features
+
+* PWA対応と正方形アイコン追加 ([#20](https://github.com/junpeimay-wq/games/issues/20)) ([a54c33a](https://github.com/junpeimay-wq/games/commit/a54c33a70f5856fb6573249b75f86894b7645918))
+
 ## [0.5.0](https://github.com/junpeimay-wq/games/compare/v0.4.0...v0.5.0) (2026-10-16)
 
 
