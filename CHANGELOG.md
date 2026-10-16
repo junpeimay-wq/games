@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/junpeimay-wq/games/compare/v0.4.0...v0.5.0) (2026-10-16)
+
+
+### Features
+
+* Googleログイン成功をGA4イベント計測 ([#18](https://github.com/junpeimay-wq/games/issues/18)) ([a9a3430](https://github.com/junpeimay-wq/games/commit/a9a34300e83af0d8916d56315b514130678e0caf))
+
 ## [0.4.0](https://github.com/junpeimay-wq/games/compare/v0.3.0...v0.4.0) (2026-10-10)
 
 
