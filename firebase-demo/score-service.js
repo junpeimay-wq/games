@@ -1,4 +1,4 @@
-import { auth, db } from './firebase-config.js';
+import { analytics, auth, db } from './firebase-config.js';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   setDoc
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { logEvent } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js';
 import {
   GAME_LABELS,
   isNewHighScore,
@@ -64,6 +65,7 @@ function confirmAndSignIn(game, score) {
       button.disabled = true;
       try {
         const credential = await signInWithPopup(auth, new GoogleAuthProvider());
+        logEvent(analytics, 'google_login');
         close(credential.user);
       } catch (error) {
         console.error('Google sign-in error:', error);
