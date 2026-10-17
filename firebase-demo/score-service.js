@@ -27,7 +27,32 @@ const authReady = new Promise((resolve) => {
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
   resolveAuthReady();
+  if (user) {
+    syncProfileAcrossScores(user).catch((error) => {
+      console.error('Profile sync error:', error);
+    });
+  }
 });
+
+async function syncProfileAcrossScores(user) {
+  const name = user.displayName || user.email || 'プレイヤー';
+  const photoURL = user.photoURL || '';
+  await Promise.all(Object.keys(GAME_LABELS).map(async (game) => {
+    const scoreRef = doc(db, 'scores', `${game}_${user.uid}`);
+    const snapshot = await getDoc(scoreRef);
+    if (!snapshot.exists()) return;
+    const data = snapshot.data();
+    if (data.name === name && data.photoURL === photoURL) return;
+    await setDoc(scoreRef, {
+      uid: user.uid,
+      name,
+      photoURL,
+      game,
+      score: data.score,
+      updatedAt: serverTimestamp()
+    });
+  }));
+}
 
 function setStatus(message, isError = false, statusElementId = 'ranking-status') {
   const status = document.getElementById(statusElementId);

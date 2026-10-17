@@ -9,7 +9,16 @@ service cloud.firestore {
                     && docId == request.resource.data.game + '_' + request.auth.uid
                     && request.resource.data.uid == resource.data.uid
                     && request.resource.data.game == resource.data.game
-                    && request.resource.data.score > resource.data.score;
+                    && (
+                      request.resource.data.score > resource.data.score
+                      || (
+                        request.resource.data.score == resource.data.score
+                        && (
+                          request.resource.data.name != resource.data.name
+                          || request.resource.data.photoURL != resource.data.photoURL
+                        )
+                      )
+                    );
     }
 
     match /users/{userId}/mapSymbolProgress/{progressId} {
