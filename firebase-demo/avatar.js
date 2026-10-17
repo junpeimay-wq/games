@@ -22,7 +22,6 @@ export function createAvatarElement(photoURL, className = 'rank-avatar') {
   image.alt = '';
   image.loading = 'lazy';
   image.decoding = 'async';
-  image.referrerPolicy = 'no-referrer';
   image.addEventListener('error', () => image.replaceWith(fallback), { once: true });
   return image;
 }
