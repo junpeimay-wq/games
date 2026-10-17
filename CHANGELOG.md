@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.3](https://github.com/junpeimay-wq/games/compare/v0.6.2...v0.6.3) (2026-10-17)
+
+
+### Bug Fixes
+
+* Googleアカウントのアバター表示を修正 ([#26](https://github.com/junpeimay-wq/games/issues/26)) ([4e976c7](https://github.com/junpeimay-wq/games/commit/4e976c7ac4bfbaa57b3fb33ff8fa4d9af82e8750))
+
 ## [0.6.2](https://github.com/junpeimay-wq/games/compare/v0.6.1...v0.6.2) (2026-10-17)
 
 
