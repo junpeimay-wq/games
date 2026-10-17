@@ -2,6 +2,7 @@ import { analytics, auth, db } from './firebase-config.js';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
+  reload,
   signInWithPopup
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
@@ -91,6 +92,8 @@ function confirmAndSignIn(game, score) {
       try {
         const credential = await signInWithPopup(auth, new GoogleAuthProvider());
         if (analytics) logEvent(analytics, 'google_login');
+        await reload(credential.user);
+        await syncProfileAcrossScores(credential.user);
         close(credential.user);
       } catch (error) {
         console.error('Google sign-in error:', error);
