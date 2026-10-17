@@ -44,7 +44,7 @@ onAuthStateChanged(auth, (user) => {
 loginBtn.addEventListener('click', async () => {
   try {
     await signInWithPopup(auth, new GoogleAuthProvider());
-    logEvent(analytics, 'google_login');
+    if (analytics) logEvent(analytics, 'google_login');
   } catch (error) {
     console.error('Login error:', error);
     rankingStatus.textContent = `ログインエラー: ${error.message}`;

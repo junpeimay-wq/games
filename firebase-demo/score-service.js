@@ -65,7 +65,7 @@ function confirmAndSignIn(game, score) {
       button.disabled = true;
       try {
         const credential = await signInWithPopup(auth, new GoogleAuthProvider());
-        logEvent(analytics, 'google_login');
+        if (analytics) logEvent(analytics, 'google_login');
         close(credential.user);
       } catch (error) {
         console.error('Google sign-in error:', error);
