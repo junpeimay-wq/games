@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.4](https://github.com/junpeimay-wq/games/compare/v0.6.3...v0.6.4) (2026-10-17)
+
+
+### Bug Fixes
+
+* ランキングアバターの読み込みを安定化 ([#28](https://github.com/junpeimay-wq/games/issues/28)) ([358ee88](https://github.com/junpeimay-wq/games/commit/358ee88c045e78e75c2e31692b97b9f5ea8b654e))
+
 ## [0.6.3](https://github.com/junpeimay-wq/games/compare/v0.6.2...v0.6.3) (2026-10-17)
 
 
