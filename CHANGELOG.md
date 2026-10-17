@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/junpeimay-wq/games/compare/v0.7.0...v0.7.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* Googleプロバイダーの最新画像URLを使用 ([#32](https://github.com/junpeimay-wq/games/issues/32)) ([95dc786](https://github.com/junpeimay-wq/games/commit/95dc786059bc46887f786ea86b649f0decf98c51))
+
 ## [0.7.0](https://github.com/junpeimay-wq/games/compare/v0.6.4...v0.7.0) (2026-10-17)
 
 
