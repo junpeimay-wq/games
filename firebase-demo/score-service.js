@@ -38,6 +38,12 @@ onAuthStateChanged(auth, (user) => {
 export async function syncProfileAcrossScores(user) {
   const name = user.displayName || user.email || 'プレイヤー';
   const photoURL = user.photoURL || '';
+  await setDoc(doc(db, 'users', user.uid), {
+    uid: user.uid,
+    name,
+    photoURL,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
   await Promise.all(Object.keys(GAME_LABELS).map(async (game) => {
     const scoreRef = doc(db, 'scores', `${game}_${user.uid}`);
     const snapshot = await getDoc(scoreRef);
