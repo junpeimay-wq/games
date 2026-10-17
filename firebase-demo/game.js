@@ -16,7 +16,7 @@ import {
 import { logEvent } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js';
 import { createAvatarElement } from './avatar.js';
 import { formatScore, rankScores } from './score-utils.js';
-import { syncProfileAcrossScores } from './score-service.js';
+import { getProfilePhotoURL, syncProfileAcrossScores } from './score-service.js';
 
 const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
@@ -28,9 +28,15 @@ const rankingList = document.getElementById('ranking-list');
 const rankingStatus = document.getElementById('ranking-status');
 
 onAuthStateChanged(auth, (user) => {
+  console.info('[auth] state changed', {
+    uid: user?.uid ?? null,
+    photoURL: user?.photoURL ?? null,
+    providerPhotoURL: user?.providerData?.find((provider) => provider.providerId === 'google.com')?.photoURL ?? null
+  });
   if (user) {
-    userAvatar.src = user.photoURL || '';
-    userAvatar.style.display = user.photoURL ? 'inline-block' : 'none';
+    const photoURL = getProfilePhotoURL(user);
+    userAvatar.src = photoURL;
+    userAvatar.style.display = photoURL ? 'inline-block' : 'none';
     userName.textContent = user.displayName || user.email || 'プレイヤー';
     userInfo.classList.remove('hidden');
     loginBtn.classList.add('hidden');
@@ -45,6 +51,11 @@ onAuthStateChanged(auth, (user) => {
 loginBtn.addEventListener('click', async () => {
   try {
     const credential = await signInWithPopup(auth, new GoogleAuthProvider());
+    console.info('[auth] Google sign-in result', {
+      uid: credential.user.uid,
+      photoURL: getProfilePhotoURL(credential.user),
+      providerPhotoURL: credential.user.providerData.find((provider) => provider.providerId === 'google.com')?.photoURL ?? null
+    });
     await syncProfileAcrossScores(credential.user);
     if (analytics) logEvent(analytics, 'google_login');
   } catch (error) {

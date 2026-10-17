@@ -25,6 +25,12 @@ const authReady = new Promise((resolve) => {
   resolveAuthReady = resolve;
 });
 
+export function getProfilePhotoURL(user) {
+  return user?.providerData?.find((provider) => provider.providerId === 'google.com')?.photoURL
+    || user?.photoURL
+    || '';
+}
+
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
   resolveAuthReady();
@@ -37,7 +43,7 @@ onAuthStateChanged(auth, (user) => {
 
 export async function syncProfileAcrossScores(user) {
   const name = user.displayName || user.email || 'プレイヤー';
-  const photoURL = user.photoURL || '';
+  const photoURL = getProfilePhotoURL(user);
   await setDoc(doc(db, 'users', user.uid), {
     uid: user.uid,
     name,
@@ -144,7 +150,7 @@ export async function recordHighScore(game, score, statusElementId = 'ranking-st
     await setDoc(scoreRef, {
       uid: user.uid,
       name: user.displayName || user.email || 'プレイヤー',
-      photoURL: user.photoURL || '',
+      photoURL: getProfilePhotoURL(user),
       game,
       score,
       updatedAt: serverTimestamp()
@@ -267,7 +273,7 @@ export async function recordMapSymbolAnswer(symbolId, isCorrect) {
       transaction.set(scoreRef, {
         uid: user.uid,
         name: user.displayName || user.email || 'プレイヤー',
-        photoURL: user.photoURL || '',
+        photoURL: getProfilePhotoURL(user),
         game: 'terrain-quest',
         score: totalPoints,
         updatedAt: serverTimestamp()
