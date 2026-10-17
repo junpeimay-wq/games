@@ -16,11 +16,19 @@ const firebaseConfig = {
   projectId:         "junpeimay-games",
   storageBucket:     "junpeimay-games.firebasestorage.app",
   messagingSenderId: "562804706409",
-  appId:             "1:562804706409:web:8147bca9901e2e51a1e6f8"
+  appId:             "1:562804706409:web:8147bca9901e2e51a1e6f8",
+  measurementId:     "G-FDT7JTRCNE"
 };
 
 const app = initializeApp(firebaseConfig);
 
-export const analytics = getAnalytics(app);
+let analytics = null;
+try {
+  analytics = getAnalytics(app);
+} catch (error) {
+  console.warn('Firebase Analytics is unavailable:', error);
+}
+
+export { analytics };
 export const auth = getAuth(app);
 export const db   = getFirestore(app);
