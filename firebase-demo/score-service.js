@@ -35,7 +35,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-async function syncProfileAcrossScores(user) {
+export async function syncProfileAcrossScores(user) {
   const name = user.displayName || user.email || 'プレイヤー';
   const photoURL = user.photoURL || '';
   await Promise.all(Object.keys(GAME_LABELS).map(async (game) => {
