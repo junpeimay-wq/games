@@ -20,8 +20,9 @@ export function createAvatarElement(photoURL, className = 'rank-avatar') {
   image.className = className;
   image.src = photoURL;
   image.alt = '';
-  image.loading = 'lazy';
+  image.loading = 'eager';
   image.decoding = 'async';
+  image.referrerPolicy = 'origin';
   image.addEventListener('error', () => image.replaceWith(fallback), { once: true });
   return image;
 }

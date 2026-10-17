@@ -267,7 +267,14 @@ test('allows only the owner to update their score to a strictly higher value', a
   const db = testEnv.authenticatedContext('score-owner').firestore();
   const scoreRef = doc(db, 'scores', 'snake_score-owner');
   await assertSucceeds(setDoc(scoreRef, scoreData('score-owner', { score: 124 })));
-  await assertFails(setDoc(scoreRef, scoreData('score-owner', { score: 124 })));
+  await assertSucceeds(setDoc(scoreRef, scoreData('score-owner', {
+    score: 124,
+    photoURL: 'https://example.com/new-avatar.png'
+  })));
+  await assertFails(setDoc(scoreRef, scoreData('score-owner', {
+    score: 124,
+    photoURL: 'https://example.com/new-avatar.png'
+  })));
   await assertFails(setDoc(scoreRef, scoreData('score-owner', { score: 100 })));
   await assertFails(
     setDoc(scoreRef, scoreData('different-user', { score: 999 }))

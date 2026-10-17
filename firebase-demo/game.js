@@ -16,6 +16,7 @@ import {
 import { logEvent } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js';
 import { createAvatarElement } from './avatar.js';
 import { formatScore, rankScores } from './score-utils.js';
+import { syncProfileAcrossScores } from './score-service.js';
 
 const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
@@ -43,7 +44,8 @@ onAuthStateChanged(auth, (user) => {
 
 loginBtn.addEventListener('click', async () => {
   try {
-    await signInWithPopup(auth, new GoogleAuthProvider());
+    const credential = await signInWithPopup(auth, new GoogleAuthProvider());
+    await syncProfileAcrossScores(credential.user);
     if (analytics) logEvent(analytics, 'google_login');
   } catch (error) {
     console.error('Login error:', error);
