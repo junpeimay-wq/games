@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/junpeimay-wq/games/compare/v0.6.4...v0.7.0) (2026-10-17)
+
+
+### Features
+
+* Googleプロフィール情報をユーザードキュメントで管理 ([#30](https://github.com/junpeimay-wq/games/issues/30)) ([8b6dff3](https://github.com/junpeimay-wq/games/commit/8b6dff340b765e930aece334712f28a67e4c3abe))
+
 ## [0.6.4](https://github.com/junpeimay-wq/games/compare/v0.6.3...v0.6.4) (2026-10-17)
 
 
