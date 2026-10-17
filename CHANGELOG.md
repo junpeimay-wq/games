@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/junpeimay-wq/games/compare/v0.6.0...v0.6.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* faviconを正方形塗りつぶしに変更 ([#22](https://github.com/junpeimay-wq/games/issues/22)) ([5394d6c](https://github.com/junpeimay-wq/games/commit/5394d6cd47111ca1abbb7aff444243123a70d960))
+
 ## [0.6.0](https://github.com/junpeimay-wq/games/compare/v0.5.0...v0.6.0) (2026-10-16)
 
 
