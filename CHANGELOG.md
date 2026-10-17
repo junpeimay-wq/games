@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/junpeimay-wq/games/compare/v0.6.1...v0.6.2) (2026-10-17)
+
+
+### Bug Fixes
+
+* Analytics障害時もランキングアバターを表示 ([#24](https://github.com/junpeimay-wq/games/issues/24)) ([a8dc545](https://github.com/junpeimay-wq/games/commit/a8dc545fbf3c569718c98abe3ec8be48d1b518ee))
+
 ## [0.6.1](https://github.com/junpeimay-wq/games/compare/v0.6.0...v0.6.1) (2026-10-17)
 
 
