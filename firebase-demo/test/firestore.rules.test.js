@@ -77,6 +77,15 @@ test('allows public score reads', async () => {
   )));
 });
 
+test('allows a user to create and update only their public profile', async () => {
+  const db = testEnv.authenticatedContext('profile-owner').firestore();
+  const profileRef = doc(db, 'users', 'profile-owner');
+  await assertSucceeds(setDoc(profileRef, {
+    uid: 'profile-owner', name: 'プレイヤー', photoURL: 'https://example.com/a.png',
+    updatedAt: serverTimestamp()
+  }));
+});
+
 test('allows an authenticated user to create a valid score for their UID', async () => {
   const uid = 'score-owner';
   const db = testEnv.authenticatedContext(uid).firestore();
