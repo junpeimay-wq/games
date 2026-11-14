@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  claimRankingPrompt,
   formatScore,
   GAME_LABELS,
   isNewHighScore,
   nextRetroFightStreak,
   nextTicTacToeStreak,
   rankScores,
+  RANKING_PROMPT_SESSION_KEY,
   updateMapSymbolProgress
 } from '../score-utils.js';
 
@@ -77,4 +79,26 @@ test('ranking assigns sequential positions and formats only valid scores', () =>
   assert.equal(formatScore(1234), '1,234');
   assert.equal(formatScore(Number.NaN), '—');
   assert.equal(formatScore(-1), '—');
+});
+
+test('ranking prompt is claimed only once per session (ADR-0016)', () => {
+  const data = {};
+  const storage = {
+    getItem: (k) => (k in data ? data[k] : null),
+    setItem: (k, v) => { data[k] = String(v); }
+  };
+  assert.equal(claimRankingPrompt(storage), true);
+  assert.equal(data[RANKING_PROMPT_SESSION_KEY], '1');
+  assert.equal(claimRankingPrompt(storage), false);
+  assert.equal(claimRankingPrompt(storage), false);
+});
+
+test('ranking prompt falls back to showing when storage is unavailable', () => {
+  assert.equal(claimRankingPrompt(null), true);
+  assert.equal(claimRankingPrompt(undefined), true);
+  const broken = {
+    getItem() { throw new Error('denied'); },
+    setItem() { throw new Error('denied'); }
+  };
+  assert.equal(claimRankingPrompt(broken), true);
 });
