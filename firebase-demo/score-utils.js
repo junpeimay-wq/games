@@ -2,7 +2,8 @@ export const GAME_LABELS = {
   snake: 'スネークゲーム',
   tictactoe: '戦略的〇×ゲーム',
   'block-puzzle': '8x8ブロックパズル',
-  'terrain-quest': 'まちの地図記号クイズ'
+  'terrain-quest': 'まちの地図記号クイズ',
+  'retro-fight': 'レトロ格闘ファイト'
 };
 
 export function isNewHighScore(score, previousBest) {
@@ -11,6 +12,10 @@ export function isNewHighScore(score, previousBest) {
 
 export function nextTicTacToeStreak(result, currentStreak) {
   return result === 'O' ? currentStreak + 1 : 0;
+}
+
+export function nextRetroFightStreak(won, currentStreak) {
+  return won ? currentStreak + 1 : 0;
 }
 
 export function rankScores(scores) {
