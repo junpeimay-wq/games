@@ -70,6 +70,17 @@ canvas {
 
 #pad button:active { background: #00ff88; color: #16213e; }
 
+#btn-special { border-color: #ff9f1c; color: #ff9f1c; opacity: 0.55; }
+#btn-special.ready {
+  opacity: 1;
+  animation: sp-ready 0.45s infinite alternate;
+}
+#btn-special.ready:active { background: #ff9f1c; color: #16213e; }
+@keyframes sp-ready {
+  from { box-shadow: 0 0 2px #ff9f1c; }
+  to { box-shadow: 0 0 16px #ffd23f; background: #3a2403; }
+}
+
 .game-guide {
   text-align: left;
   margin: 28px auto 0;
