@@ -79,18 +79,29 @@ const sfx = {
   win() {
     [523, 659, 784, 1046].forEach((f, i) => beep(f, 0.12, 'square', 0.06, i * 0.11));
   },
+  special() {
+    beep(180, 0.3, 'sawtooth', 0.08);
+    beep(1200, 0.1, 'square', 0.05);
+    beep(1500, 0.16, 'square', 0.05, 0.08);
+  },
 };
 
 // ---------- ファイター ----------
 const ATTACKS = {
   punch: { startup: 70, active: 60, recovery: 110, range: 40, dmg: 5, stun: 170, push: 1.6 },
   kick: { startup: 130, active: 70, recovery: 220, range: 54, dmg: 9, stun: 260, push: 3.0 },
+  special: { startup: 180, active: 90, recovery: 380, range: 78, dmg: 26, stun: 420, push: 6.5 },
 };
+
+// 必殺技ゲージ（ADR-0003）: 攻撃を当てる・ダメージを受けると貯まり、
+// 満タン時のみ必殺技を出せる。必殺技を出すとゲージは0に戻る。
+const GAUGE_MAX = 100;
+const GAUGE_GAIN = { punch: 10, kick: 14 };
 
 function makeFighter(x, palette, name, isCPU) {
   return {
     x, y: GROUND, vx: 0, vy: 0,
-    hp: 100, facing: 1, isCPU, name,
+    hp: 100, gauge: 0, facing: 1, isCPU, name,
     palette,
     state: 'idle', stateT: 0, attack: null, hasHit: false,
     wins: 0, walkPhase: 0, aiT: 0, aiMove: 0, aiGuard: false,
@@ -187,12 +198,13 @@ function setStatus(text) { statusEl.textContent = text; }
 
 // ---------- 入力 ----------
 const keys = {};
-const touch = { left: false, right: false, jump: false, guard: false, punch: false, kick: false };
+const touch = { left: false, right: false, jump: false, guard: false, punch: false, kick: false, special: false };
 let touchPunchQueued = false;
 let touchKickQueued = false;
 let touchJumpQueued = false;
+let touchSpecialQueued = false;
 
-const GAME_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'KeyA', 'KeyD', 'KeyW', 'KeyS', 'KeyF', 'KeyG', 'KeyJ', 'KeyK', 'Enter'];
+const GAME_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'KeyA', 'KeyD', 'KeyW', 'KeyS', 'KeyF', 'KeyG', 'KeyJ', 'KeyK', 'KeyH', 'Enter'];
 window.addEventListener('keydown', (e) => {
   if (GAME_KEYS.includes(e.code)) e.preventDefault();
   if (e.repeat) return;
@@ -223,6 +235,7 @@ function bindButton(id, prop, queuedProp) {
       if (queuedProp === 'punch') touchPunchQueued = true;
       if (queuedProp === 'kick') touchKickQueued = true;
       if (queuedProp === 'jump') touchJumpQueued = true;
+      if (queuedProp === 'special') touchSpecialQueued = true;
     }
   };
   const off = (e) => { e.preventDefault(); touch[prop] = false; };
@@ -237,18 +250,22 @@ bindButton('btn-jump', 'jump', 'jump');
 bindButton('btn-guard', 'guard');
 bindButton('btn-punch', 'punch', 'punch');
 bindButton('btn-kick', 'kick', 'kick');
+bindButton('btn-special', 'special', 'special');
+const specialBtn = document.getElementById('btn-special');
 
 function playerInput() {
-  const input = { move: 0, jump: false, guard: false, punch: false, kick: false };
+  const input = { move: 0, jump: false, guard: false, punch: false, kick: false, special: false };
   if (keys['KeyA'] || keys['ArrowLeft'] || touch.left) input.move = -1;
   if (keys['KeyD'] || keys['ArrowRight'] || touch.right) input.move = 1;
   input.guard = !!(keys['KeyS'] || keys['ArrowDown'] || touch.guard);
   input.jump = !!(keys['KeyW'] || keys['ArrowUp']) || touchJumpQueued;
   input.punch = !!(keys['KeyF'] || keys['KeyJ']) || touchPunchQueued;
   input.kick = !!(keys['KeyG'] || keys['KeyK']) || touchKickQueued;
+  input.special = !!keys['KeyH'] || touchSpecialQueued;
   touchJumpQueued = false;
   touchPunchQueued = false;
   touchKickQueued = false;
+  touchSpecialQueued = false;
   return input;
 }
 
@@ -273,7 +290,12 @@ function startAttack(f, kind) {
   f.attack = ATTACKS[kind];
   f.stateT = 0;
   f.hasHit = false;
-  sfx.swing();
+  if (kind === 'special') {
+    f.gauge = 0;
+    sfx.special();
+  } else {
+    sfx.swing();
+  }
 }
 
 function applyInput(f, input, opponent) {
@@ -283,6 +305,8 @@ function applyInput(f, input, opponent) {
 
   if (input.guard && f.y >= GROUND) { f.state = 'guard'; f.vx = 0; return; }
 
+  const wantSpecial = f.isCPU ? input.special : (input.special && (pressed('KeyH') || touch.special));
+  if (wantSpecial && f.gauge >= GAUGE_MAX) { startAttack(f, 'special'); return; }
   const wantPunch = f.isCPU ? input.punch : (input.punch && (pressed('KeyF') || pressed('KeyJ') || touch.punch));
   const wantKick = f.isCPU ? input.kick : (input.kick && (pressed('KeyG') || pressed('KeyK') || touch.kick));
   if (wantPunch) { startAttack(f, 'punch'); return; }
@@ -313,12 +337,24 @@ function attackHits(attacker, defender) {
 function landHit(attacker, defender) {
   attacker.hasHit = true;
   const a = attacker.attack;
+  const kind = attacker.state;
   const guarding = defender.state === 'guard';
   const dmg = guarding ? Math.max(1, Math.round(a.dmg * 0.2)) : a.dmg;
   defender.hp = Math.max(0, defender.hp - dmg);
   defender.vx = attacker.facing * a.push;
+  // 必殺技ゲージの増減（必殺技自体では貯まらない）
+  if (kind !== 'special') {
+    const gain = GAUGE_GAIN[kind] || 0;
+    attacker.gauge = Math.min(GAUGE_MAX, attacker.gauge + (guarding ? Math.floor(gain / 2) : gain));
+  }
+  defender.gauge = Math.min(GAUGE_MAX, defender.gauge + (guarding ? 4 : 8));
   spawnSpark(defender.x - attacker.facing * 10, defender.y - 58, guarding ? '#9adcff' : '#ffd23f');
-  shake = Math.max(shake, attacker.attack === ATTACKS.kick ? 4 : 2);
+  if (kind === 'special') {
+    spawnSpark(defender.x - attacker.facing * 10, defender.y - 58, '#ff9f1c');
+    spawnSpark(defender.x - attacker.facing * 10, defender.y - 40, '#ffffff');
+    flash = Math.max(flash, 6);
+  }
+  shake = Math.max(shake, kind === 'special' ? 9 : attacker.attack === ATTACKS.kick ? 4 : 2);
   if (guarding) {
     sfx.guard();
   } else {
@@ -353,7 +389,7 @@ function updateFighter(f, dt) {
   f.x = Math.max(24, Math.min(W - 24, f.x));
 
   // 状態遷移
-  if ((f.state === 'punch' || f.state === 'kick') && f.attack) {
+  if ((f.state === 'punch' || f.state === 'kick' || f.state === 'special') && f.attack) {
     const total = f.attack.startup + f.attack.active + f.attack.recovery;
     if (f.stateT >= total) { f.state = 'idle'; f.attack = null; }
   }
@@ -363,12 +399,12 @@ function updateFighter(f, dt) {
 
 // ---------- CPU AI ----------
 function cpuInput(dt) {
-  const input = { move: 0, jump: false, guard: false, punch: false, kick: false };
+  const input = { move: 0, jump: false, guard: false, punch: false, kick: false, special: false };
   cpu.aiT -= dt;
   const dist = Math.abs(p1.x - cpu.x);
   const dir = p1.x > cpu.x ? 1 : -1;
   // プレイヤーが攻撃中なら一定確率でガード
-  const playerAttacking = p1.state === 'punch' || p1.state === 'kick';
+  const playerAttacking = p1.state === 'punch' || p1.state === 'kick' || p1.state === 'special';
   if (playerAttacking && dist < 70 && Math.random() < 0.45) {
     cpu.aiGuard = true;
     cpu.aiT = 140;
@@ -377,7 +413,11 @@ function cpuInput(dt) {
     cpu.aiT = 130 + Math.random() * 120;
     cpu.aiGuard = false;
     const aggression = 0.45 + round * 0.08 + cpu.wins * 0.05;
-    if (dist > 120) {
+    if (cpu.gauge >= GAUGE_MAX && dist <= 95 && Math.random() < 0.6) {
+      // ゲージ満タンなら必殺技を狙う
+      input.special = true;
+      cpu.aiMove = 0;
+    } else if (dist > 120) {
       cpu.aiMove = dir;
       if (Math.random() < 0.12) input.jump = true;
     } else if (dist > 58) {
@@ -476,6 +516,7 @@ function loop(ts) {
   if (shake > 0) shake = Math.max(0, shake - 0.5);
   if (flash > 0) flash -= 1;
   draw();
+  if (specialBtn) specialBtn.classList.toggle('ready', !!(p1 && p1.gauge >= GAUGE_MAX));
   savePrevKeys();
 }
 requestAnimationFrame(loop);
@@ -578,7 +619,15 @@ function drawFighter(f) {
   ctx.fillRect(-10, -32, 21, 4);
   // 腕
   ctx.fillStyle = pal.gi;
-  if (f.state === 'punch') {
+  if (f.state === 'special') {
+    ctx.fillRect(8, -54, 34, 8); // 大きく突き出した腕
+    ctx.fillStyle = pal.skin;
+    ctx.fillRect(40, -54, 8, 8); // 拳
+    ctx.fillStyle = '#ffd23f';
+    ctx.fillRect(49, -59, 11, 18); // 気弾
+    ctx.fillStyle = pal.gi;
+    ctx.fillRect(-13, -50, 6, 14);
+  } else if (f.state === 'punch') {
     ctx.fillRect(8, -52, 26, 6); // 突き出した腕
     ctx.fillStyle = pal.skin;
     ctx.fillRect(32, -52, 7, 6); // 拳
@@ -649,6 +698,24 @@ function drawHpBar(f, x, alignRight) {
   ctx.fillText(f.name, alignRight ? x + w : x, 42);
 }
 
+function drawGaugeBar(f, x, alignRight) {
+  const w = 190;
+  const pct = Math.max(0, Math.min(GAUGE_MAX, f.gauge)) / GAUGE_MAX;
+  const full = f.gauge >= GAUGE_MAX;
+  ctx.fillStyle = '#14141f';
+  ctx.fillRect(x, 48, w, 7);
+  ctx.fillStyle = full ? (Math.floor(Date.now() / 250) % 2 ? '#ffd23f' : '#ff7847') : '#ff9f1c';
+  if (alignRight) ctx.fillRect(x + w * (1 - pct), 49, w * pct, 5);
+  else ctx.fillRect(x, 49, w * pct, 5);
+  ctx.strokeStyle = '#eee';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x, 48, w, 7);
+  ctx.fillStyle = full ? '#ffd23f' : '#aaa';
+  ctx.font = full ? 'bold 10px monospace' : '9px monospace';
+  ctx.textAlign = alignRight ? 'right' : 'left';
+  ctx.fillText(full ? '必殺技 OK!' : 'SPECIAL', alignRight ? x + w : x, 66);
+}
+
 function draw() {
   ctx.save();
   if (shake > 0) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
@@ -659,6 +726,8 @@ function draw() {
     drawFighter(p1);
     drawHpBar(p1, 14, false);
     drawHpBar(cpu, W - 14 - 190, true);
+    drawGaugeBar(p1, 14, false);
+    drawGaugeBar(cpu, W - 14 - 190, true);
     // タイマー
     ctx.fillStyle = '#14141f';
     ctx.fillRect(W / 2 - 20, 8, 40, 26);
@@ -694,8 +763,8 @@ function draw() {
     ctx.fillText('レトロ格闘ファイト', W / 2, 134);
     ctx.fillStyle = '#eee';
     ctx.font = '12px monospace';
-    ctx.fillText('パンチ: F / キック: G / ガード: S / 移動: A,D', W / 2, 168);
-    ctx.fillText('2ラウンド先取で勝利', W / 2, 188);
+    ctx.fillText('パンチ: F / キック: G / 必殺: H（ゲージ満タン時）', W / 2, 168);
+    ctx.fillText('ガード: S / 移動: A,D / 2ラウンド先取で勝利', W / 2, 188);
   } else if (banner) {
     ctx.fillStyle = banner === 'K.O.!' ? '#ff4040' : '#ffd23f';
     ctx.font = 'bold 34px monospace';
