@@ -12,6 +12,7 @@
 | ⭕ 戦略的〇×ゲーム | 相手の駒を1回だけ上書きできる思考型マルバツゲーム | [遊ぶ](https://junpeimay-games.web.app/tictactoe/) |
 | 🧩 8x8ブロックパズル | ブロックを配置して縦横ライン消去！同時消しボーナス付き | [遊ぶ](https://junpeimay-games.web.app/block-puzzle/) |
 | 🗺️ まちの地図記号クイズ | 地図上の記号を選び、4択で意味を学ぶ。正解記号ごとに100点、既知の記号は10点 | [遊ぶ](https://junpeimay-games.web.app/terrain-quest/) |
+| 🥊 レトロ格闘ファイト | ドット絵ファイターで戦う対CPU格闘ゲーム。パンチ・キック・ガードを使い分け、2ラウンド先取で勝利 | [遊ぶ](https://junpeimay-games.web.app/retro-fight/) |
 
 ## 操作方法
 
