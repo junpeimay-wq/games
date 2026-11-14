@@ -159,3 +159,41 @@ a {
 .error {
   color: #ff6b6b;
 }
+
+.ranking-games {
+  margin-top: 28px;
+}
+
+.ranking-games h2 {
+  font-size: 1rem;
+  color: #00ff88;
+  margin: 0 0 10px;
+}
+
+.ranking-games ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+
+.ranking-games a,
+.ranking-games span {
+  display: inline-block;
+  padding: 8px 12px;
+  background: #16213e;
+  border: 1px solid #2a3a5e;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.ranking-games a:hover {
+  border-color: #00ff88;
+}
+
+.ranking-games span {
+  color: #ffd23f;
+  border-color: #ffd23f;
+}
