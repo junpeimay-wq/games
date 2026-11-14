@@ -4,6 +4,7 @@ import {
   formatScore,
   GAME_LABELS,
   isNewHighScore,
+  nextRetroFightStreak,
   nextTicTacToeStreak,
   rankScores,
   updateMapSymbolProgress
@@ -11,6 +12,17 @@ import {
 
 test('registers the map quiz as a score-capable game', () => {
   assert.equal(GAME_LABELS['terrain-quest'], 'まちの地図記号クイズ');
+});
+
+test('registers retro fight as a score-capable game', () => {
+  assert.equal(GAME_LABELS['retro-fight'], 'レトロ格闘ファイト');
+});
+
+test('retro fight streaks increase on wins and reset on losses', () => {
+  assert.equal(nextRetroFightStreak(true, 4), 5);
+  assert.equal(nextRetroFightStreak(true, 0), 1);
+  assert.equal(nextRetroFightStreak(false, 4), 0);
+  assert.equal(nextRetroFightStreak(false, 0), 0);
 });
 
 test('awards map symbol points once for first mastery and ten for later correct answers', () => {
