@@ -1,0 +1,81 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1a2e;
+  color: #eee;
+  font-family: monospace;
+  min-height: 100vh;
+  padding: 24px 16px 40px;
+  text-align: center;
+}
+
+main { max-width: 720px; margin: 0 auto; }
+
+h1 {
+  font-size: 1.6rem;
+  color: #00ff88;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+#info { color: #ffd23f; margin-bottom: 6px; }
+
+.status { color: #aaa; font-size: 0.85rem; min-height: 1.2em; margin-bottom: 8px; }
+
+canvas {
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  background: #0f0f23;
+  border: 3px solid #00ff88;
+  border-radius: 4px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  touch-action: none;
+}
+
+#msg { color: #eee; margin: 10px 0 4px; font-size: 0.95rem; }
+
+#pad {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 720px;
+  margin: 12px auto 0;
+}
+
+.pad-group { display: flex; gap: 8px; }
+
+#pad button {
+  width: 56px;
+  height: 56px;
+  font-size: 1.3rem;
+  background: #16213e;
+  color: #00ff88;
+  border: 2px solid #00ff88;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+#pad button:active { background: #00ff88; color: #16213e; }
+
+.game-guide {
+  text-align: left;
+  margin: 28px auto 0;
+  background: #16213e;
+  border: 1px solid #2a3a5e;
+  border-radius: 8px;
+  padding: 16px 18px;
+  line-height: 1.7;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.game-guide h2 { color: #00ff88; font-size: 1rem; margin-bottom: 8px; }
+
+@media (min-width: 721px) {
+  #pad { display: none; }
+}
