@@ -26,6 +26,22 @@ export function formatScore(score) {
   return Number.isSafeInteger(score) && score >= 0 ? score.toLocaleString() : '—';
 }
 
+// ランキング記録の確認ダイアログを表示済みかを示す sessionStorage のキー（ADR-0016）
+export const RANKING_PROMPT_SESSION_KEY = 'game-arcade-ranking-prompt-shown';
+
+// このセッションで確認ダイアログを表示してよい場合に true を返し、表示済みとして記録する。
+// 2回目以降は false。storage が無い・使えない環境では安全側として true を返す（従来動作）。
+export function claimRankingPrompt(storage) {
+  if (!storage) return true;
+  try {
+    if (storage.getItem(RANKING_PROMPT_SESSION_KEY) === '1') return false;
+    storage.setItem(RANKING_PROMPT_SESSION_KEY, '1');
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 export function updateMapSymbolProgress(previous, symbolId, isCorrect) {
   if (!/^\d{4}$/.test(symbolId) || typeof isCorrect !== 'boolean') {
     throw new RangeError('Invalid map symbol answer.');
