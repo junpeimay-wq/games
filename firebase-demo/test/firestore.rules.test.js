@@ -90,7 +90,7 @@ test('allows an authenticated user to create a valid score for their UID', async
   const uid = 'score-owner';
   const db = testEnv.authenticatedContext(uid).firestore();
 
-  for (const game of ['snake', 'tictactoe', 'block-puzzle', 'terrain-quest']) {
+  for (const game of ['snake', 'tictactoe', 'block-puzzle', 'terrain-quest', 'retro-fight']) {
     await assertSucceeds(
       setDoc(
         doc(db, 'scores', `${game}_${uid}`),
