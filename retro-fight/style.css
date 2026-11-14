@@ -38,13 +38,14 @@ canvas {
 
 #pad {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   max-width: 720px;
   margin: 12px auto 0;
 }
 
 .pad-group { display: flex; gap: 8px; }
+.pad-group:last-child { justify-content: flex-end; }
 
 #pad button {
   width: 60px;
