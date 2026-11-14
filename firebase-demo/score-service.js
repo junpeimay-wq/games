@@ -15,9 +15,25 @@ import {
 import { logEvent } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js';
 import {
   GAME_LABELS,
+  claimRankingPrompt,
   isNewHighScore,
   updateMapSymbolProgress
 } from './score-utils.js';
+
+// ランキング記録の確認ダイアログはセッションに1回だけ表示する（ADR-0016）。
+// sessionStorage が使えない環境では、ページ読み込み中だけ有効なメモリで代替する。
+const memoryStorage = {
+  value: null,
+  getItem() { return this.value; },
+  setItem(key, value) { this.value = String(value); }
+};
+function rankingPromptStorage() {
+  try {
+    return window.sessionStorage || memoryStorage;
+  } catch {
+    return memoryStorage;
+  }
+}
 
 let currentUser = null;
 let resolveAuthReady;
@@ -131,6 +147,10 @@ export async function recordHighScore(game, score, statusElementId = 'ranking-st
   await authReady;
   let user = currentUser || auth.currentUser;
   if (!user) {
+    // 確認ダイアログはセッションに1回だけ。それ以降は静かに記録を見送る（ADR-0016）
+    if (!claimRankingPrompt(rankingPromptStorage())) {
+      return false;
+    }
     user = await confirmAndSignIn(game, score);
     if (!user) {
       setStatus('このハイスコアはランキングに記録されませんでした。', false, statusElementId);
