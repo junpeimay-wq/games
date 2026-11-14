@@ -29,7 +29,8 @@ function loadGame() {
   const makeEl = (id) => ({
     id, textContent: '',
     addEventListener: () => {},
-    getContext: () => makeCtx()
+    getContext: () => makeCtx(),
+    classList: { toggle: () => {}, add: () => {}, remove: () => {} }
   });
 
   const sandbox = {
@@ -109,7 +110,7 @@ function loadGame() {
   const unfreezeRandom = () => {
     vm.runInContext('Math.random = globalThis.__origRandom;', sandbox);
   };
-  return { T, frames, key, startMatch, winRoundByKO, calls, store, unfreezeRandom };
+  return { T, frames, key, startMatch, winRoundByKO, calls, store, unfreezeRandom, freezeCpu };
 }
 
 test('match flow: title, movement, CPU attack, punch damage, KO', () => {
@@ -132,6 +133,51 @@ test('match flow: title, movement, CPU attack, punch damage, KO', () => {
     if (g.T.cpu.state === 'punch' || g.T.cpu.state === 'kick') cpuAttacked = true;
   }
   assert.ok(cpuAttacked, 'CPU attacks on its own');
+});
+
+test('special move: gauge builds on landed punches and a full gauge unleashes big damage', () => {
+  const g = loadGame();
+  g.frames(10);
+  g.startMatch();
+  g.frames(100);
+  assert.equal(g.T.phase, 'fight');
+  g.freezeCpu();
+  g.T.p1.x = 200; g.T.cpu.x = 230;
+  g.T.p1.y = 234; g.T.cpu.y = 234;
+  g.T.p1.facing = 1; g.T.cpu.facing = -1;
+
+  // パンチを当てると攻撃側のゲージが貯まる
+  assert.equal(g.T.p1.gauge, 0);
+  const hpBefore = g.T.cpu.hp;
+  g.key('KeyF', 'keydown');
+  g.frames(3);
+  g.key('KeyF', 'keyup');
+  g.frames(30);
+  assert.equal(g.T.cpu.hp, hpBefore - 5);
+  assert.equal(g.T.p1.gauge, 10);
+
+  // ゲージが満タンでなければ必殺技は出ない
+  g.T.p1.gauge = 50;
+  g.T.p1.state = 'idle'; g.T.p1.attack = null;
+  g.key('KeyH', 'keydown');
+  g.frames(3);
+  g.key('KeyH', 'keyup');
+  g.frames(20);
+  assert.notEqual(g.T.p1.state, 'special');
+  assert.equal(g.T.p1.gauge, 50);
+
+  // 満タンなら必殺技が出て大ダメージを与え、ゲージは0に戻る
+  const hpFull = g.T.cpu.hp;
+  g.T.p1.gauge = 100;
+  g.T.p1.state = 'idle'; g.T.p1.attack = null;
+  g.T.cpu.state = 'idle'; g.T.cpu.attack = null;
+  g.T.cpu.x = 230; g.T.cpu.y = 234;
+  g.key('KeyH', 'keydown');
+  g.frames(3);
+  g.key('KeyH', 'keyup');
+  assert.equal(g.T.p1.gauge, 0);
+  g.frames(40);
+  assert.equal(g.T.cpu.hp, hpFull - 26);
 });
 
 test('winning a match records the new best streak once; losing resets the streak', async () => {
