@@ -1,7 +1,11 @@
 'use strict';
 
 // レトロ格闘ファイト: ドット絵風1対1対戦格闘（対CPU、2ラウンド先取）
-// 通信は一切行わず、連勝記録だけ localStorage に保存する。
+// スコアは試合の連勝数。自己ベストは端末に保存し、ハイスコア更新時は
+// 共通のスコア基盤（firebase-demo）経由でランキングに自動記録する。
+
+import { loadHighScore, recordHighScore } from '../firebase-demo/score-service.js';
+import { nextRetroFightStreak } from '../firebase-demo/score-utils.js';
 
 const W = 480;
 const H = 270;
@@ -19,10 +23,25 @@ const bestEl = document.getElementById('best');
 const statusEl = document.getElementById('status');
 const msgEl = document.getElementById('msg');
 
+const CURRENT_KEY = 'retro-fight-current-streak';
 const BEST_KEY = 'retro-fight-best-streak';
-let streak = 0;
-let best = Number(localStorage.getItem(BEST_KEY) || 0);
-bestEl.textContent = best;
+let streak = Number.parseInt(localStorage.getItem(CURRENT_KEY) || '0', 10) || 0;
+let best = Number.parseInt(localStorage.getItem(BEST_KEY) || '0', 10) || 0;
+
+function updateStreakDisplay() {
+  streakEl.textContent = streak;
+  bestEl.textContent = best;
+}
+updateStreakDisplay();
+
+// ログイン済みならクラウドの自己ベストを優先して反映する（ADR-0013）
+loadHighScore('retro-fight').then((score) => {
+  if (score !== null) {
+    best = score;
+    localStorage.setItem(BEST_KEY, String(best));
+    updateStreakDisplay();
+  }
+}).catch((error) => console.error('Retro fight cloud score error:', error));
 
 // ---------- サウンド（WebAudio の矩形波でレトロに） ----------
 let audioCtx = null;
@@ -140,22 +159,27 @@ function endMatch() {
   phaseT = 0;
   if (p1.wins > cpu.wins) {
     p1.state = 'win';
-    streak += 1;
+    streak = nextRetroFightStreak(true, streak);
+    localStorage.setItem(CURRENT_KEY, String(streak));
     if (streak > best) {
       best = streak;
       localStorage.setItem(BEST_KEY, String(best));
-      bestEl.textContent = best;
+      // ハイスコア更新時だけランキングへ自動記録する（ADR-0001）
+      recordHighScore('retro-fight', best).catch((error) => {
+        console.error('Retro fight ranking error:', error);
+      });
     }
     banner = 'YOU WIN!';
     setStatus('勝利！ 連勝記録: ' + streak);
     sfx.win();
   } else {
     cpu.state = 'win';
-    streak = 0;
+    streak = nextRetroFightStreak(false, streak);
+    localStorage.setItem(CURRENT_KEY, String(streak));
     banner = 'YOU LOSE';
     setStatus('敗北… Enterでもう一度');
   }
-  streakEl.textContent = streak;
+  updateStreakDisplay();
   msgEl.textContent = 'タップ or Enter でもう一度';
 }
 
