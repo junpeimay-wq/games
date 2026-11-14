@@ -38,13 +38,14 @@ canvas {
 
 #pad {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   max-width: 720px;
   margin: 12px auto 0;
 }
 
 .pad-group { display: flex; gap: 8px; }
+.pad-group:last-child { justify-content: flex-end; }
 
 #pad button {
   width: 60px;
@@ -68,6 +69,17 @@ canvas {
 #pad .btn-label { font-size: 0.58rem; line-height: 1; letter-spacing: 1px; }
 
 #pad button:active { background: #00ff88; color: #16213e; }
+
+#btn-special { border-color: #ff9f1c; color: #ff9f1c; opacity: 0.55; }
+#btn-special.ready {
+  opacity: 1;
+  animation: sp-ready 0.45s infinite alternate;
+}
+#btn-special.ready:active { background: #ff9f1c; color: #16213e; }
+@keyframes sp-ready {
+  from { box-shadow: 0 0 2px #ff9f1c; }
+  to { box-shadow: 0 0 16px #ffd23f; background: #3a2403; }
+}
 
 .game-guide {
   text-align: left;
