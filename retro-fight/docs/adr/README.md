@@ -8,6 +8,7 @@
 |-----|---------|-----------|
 | [0001](0001-retro-fight-rules-and-streak-score.md) | レトロ格闘ファイトの基本ルールと連勝数スコアの定義 | 承認済み |
 | [0002](0002-google-analytics.md) | レトロ格闘ファイトへのGoogle Analytics導入 | 承認済み・実装済み |
+| [0003](0003-special-move-gauge.md) | 必殺技ゲージと必殺技の仕様 | 承認済み |
 
 ## 新しいADRの追加方法
 
