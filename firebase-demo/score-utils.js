@@ -3,7 +3,8 @@ export const GAME_LABELS = {
   tictactoe: '戦略的〇×ゲーム',
   'block-puzzle': '8x8ブロックパズル',
   'terrain-quest': 'まちの地図記号クイズ',
-  'retro-fight': 'レトロ格闘ファイト'
+  'retro-fight': 'レトロ格闘ファイト',
+  'zombie-wars': 'ゾンビ・ウォーズ'
 };
 
 export function isNewHighScore(score, previousBest) {
