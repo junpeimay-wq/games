@@ -95,6 +95,12 @@ canvas {
 
 .game-guide h2 { color: #00ff88; font-size: 1rem; margin-bottom: 8px; }
 
-@media (min-width: 721px) {
+/* タッチ操作UIの表示は画面幅ではなく入力手段で決める（ADR-0017）。
+   主ポインタが fine（マウス等）の端末では隠し、タッチ対応端末では
+   画面幅によらず表示する。 */
+@media (pointer: fine) {
   #pad { display: none; }
 }
+
+/* JS がタッチ対応を検出した場合のフォールバック（pointer 判定より優先） */
+body.touch-capable #pad { display: flex; }
