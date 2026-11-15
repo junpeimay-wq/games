@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧟 ゾンビ・ウォーズランキング - GAME ARCADE</title>
+  <meta name="description" content="ゾンビ・ウォーズのスコアランキング。ゾンビの巣を壊して稼いだスコアの上位10人を表示します。倒したゾンビの数と勝利ボーナスの合計がスコアです。">
+  <link rel="canonical" href="https://junpeimay-games.web.app/ranking/zombie-wars.html">
+  <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <script src="/pwa.js" defer></script>
+  <link rel="stylesheet" href="ranking.css">
+</head>
+<body data-game="zombie-wars">
+  <header>
+    <h1>🧟 ゾンビ・ウォーズ ランキング</h1>
+    <nav class="ranking-breadcrumb" aria-label="階層">
+      <a href="index.html">← 全ゲームランキング</a>
+      <span aria-current="page">› ゾンビ・ウォーズ</span>
+      <a class="ranking-game-link" href="../zombie-wars/">ゾンビ・ウォーズを遊ぶ</a>
+    </nav>
+  </header>
+  <main>
+    <p class="intro">ゾンビ・ウォーズのスコアランキングです。倒したゾンビの数と、勝利したときのボーナス（バリケードの残り体力と時間ボーナス）の合計がスコアです。</p>
+    <ol class="ranking-list" id="ranking-list" aria-live="polite">
+      <li class="empty">読み込み中...</li>
+    </ol>
+    <p id="ranking-error" class="error" role="status"></p>
+    <nav class="ranking-games" aria-label="ゲーム別ランキング">
+      <h2>ゲーム別ランキング</h2>
+      <ul>
+        <li><a href="snake.html">🐍 スネークゲーム</a></li>
+        <li><a href="tictactoe.html">⭕ 戦略的〇×ゲーム</a></li>
+        <li><a href="block-puzzle.html">🧩 8x8ブロックパズル</a></li>
+        <li><a href="terrain-quest.html">🗺️ まちの地図記号クイズ</a></li>
+        <li><a href="retro-fight.html">🥊 レトロ格闘ファイト</a></li>
+        <li><span aria-current="page">🧟 ゾンビ・ウォーズ</span></li>
+      </ul>
+    </nav>
+  </main>
+  <script type="module" src="ranking.js"></script>
+</body>
+</html>
