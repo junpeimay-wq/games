@@ -18,3 +18,4 @@
 | [0014](0014-google-login-analytics-event.md) | Googleログイン成功イベントの計測 | 承認済み・実装済み |
 | [0015](0015-progressive-web-app.md) | Progressive Web App対応 | 承認済み・実装済み |
 | [0016](0016-ranking-sign-in-prompt-once-per-session.md) | ランキング記録の確認ダイアログはセッションに1回だけ表示する | 承認済み |
+| [0017](0017-touch-controls-by-input-capability.md) | タッチ操作UIの表示は入力手段で決める | 承認済み |

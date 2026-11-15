@@ -204,6 +204,15 @@ let touchKickQueued = false;
 let touchJumpQueued = false;
 let touchSpecialQueued = false;
 
+// タッチ対応端末ではタッチパッドを必ず表示する（ADR-0017）。
+// CSS の pointer メディアクエリで拾えない端末向けのフォールバック。
+const touchCapable =
+  'ontouchstart' in window ||
+  (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
+if (touchCapable && document.body) {
+  document.body.classList.add('touch-capable');
+}
+
 const GAME_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'KeyA', 'KeyD', 'KeyW', 'KeyS', 'KeyF', 'KeyG', 'KeyJ', 'KeyK', 'KeyH', 'Enter'];
 window.addEventListener('keydown', (e) => {
   if (GAME_KEYS.includes(e.code)) e.preventDefault();
