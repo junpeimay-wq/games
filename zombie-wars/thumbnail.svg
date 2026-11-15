@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1026"/>
+      <stop offset="0.7" stop-color="#1d2b53"/>
+      <stop offset="1" stop-color="#2c3e6b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="560" fill="url(#sky)"/>
+  <!-- Moon -->
+  <rect x="120" y="60" width="80" height="80" fill="#f5f3ce"/>
+  <rect x="155" y="45" width="70" height="70" fill="#0b1026"/>
+  <!-- Stars -->
+  <g fill="#cfd8ff">
+    <rect x="300" y="60" width="6" height="6"/><rect x="520" y="110" width="6" height="6"/>
+    <rect x="760" y="50" width="6" height="6"/><rect x="940" y="130" width="6" height="6"/>
+    <rect x="430" y="180" width="6" height="6"/><rect x="1080" y="70" width="6" height="6"/>
+  </g>
+  <!-- Dead tree and graves -->
+  <rect x="980" y="300" width="20" height="160" fill="#0e1428"/>
+  <rect x="920" y="330" width="66" height="14" fill="#0e1428"/>
+  <rect x="1000" y="290" width="60" height="14" fill="#0e1428"/>
+  <rect x="850" y="470" width="44" height="60" fill="#232c4d"/>
+  <!-- Ground -->
+  <rect y="560" width="1200" height="115" fill="#24351f"/>
+  <rect y="560" width="1200" height="8" fill="#31482a"/>
+
+  <!-- Barricade -->
+  <g>
+    <rect x="30" y="430" width="110" height="130" fill="#8a6b42"/>
+    <rect x="30" y="430" width="110" height="18" fill="#a3804f"/>
+    <rect x="80" y="386" width="5" height="44" fill="#d8d8d8"/>
+    <rect x="85" y="386" width="32" height="20" fill="#3f7fbf"/>
+  </g>
+
+  <!-- Zombie nest -->
+  <g>
+    <rect x="1040" y="440" width="130" height="120" fill="#4a3566"/>
+    <rect x="1062" y="410" width="86" height="30" fill="#4a3566"/>
+    <rect x="1072" y="470" width="56" height="90" fill="#140b24"/>
+    <rect x="1084" y="492" width="10" height="10" fill="#ffd23f"/>
+    <rect x="1106" y="492" width="10" height="10" fill="#ffd23f"/>
+  </g>
+
+  <!-- Knife warrior -->
+  <g>
+    <rect x="238" y="470" width="14" height="42" fill="#26324d"/>
+    <rect x="262" y="470" width="14" height="42" fill="#26324d"/>
+    <rect x="232" y="404" width="48" height="58" fill="#2456d8"/>
+    <rect x="238" y="362" width="36" height="34" fill="#f2c288"/>
+    <rect x="238" y="362" width="36" height="11" fill="#2456d8"/>
+    <rect x="278" y="420" width="10" height="10" fill="#5d4a2f"/>
+    <rect x="286" y="417" width="26" height="8" fill="#d8dee9"/>
+  </g>
+
+  <!-- Gun warrior -->
+  <g>
+    <rect x="356" y="470" width="14" height="42" fill="#26324d"/>
+    <rect x="380" y="470" width="14" height="42" fill="#26324d"/>
+    <rect x="350" y="404" width="48" height="58" fill="#2e8b57"/>
+    <rect x="356" y="362" width="36" height="34" fill="#f2c288"/>
+    <rect x="356" y="362" width="36" height="11" fill="#2e8b57"/>
+    <rect x="396" y="418" width="42" height="11" fill="#22222e"/>
+  </g>
+
+  <!-- Bullet -->
+  <rect x="520" y="424" width="26" height="8" fill="#ffd23f"/>
+
+  <!-- Normal zombie -->
+  <g>
+    <rect x="700" y="470" width="14" height="42" fill="#4a3b5c"/>
+    <rect x="724" y="470" width="14" height="42" fill="#4a3b5c"/>
+    <rect x="694" y="404" width="48" height="58" fill="#6a4a8c"/>
+    <rect x="640" y="416" width="34" height="11" fill="#7ec850"/>
+    <rect x="644" y="434" width="30" height="11" fill="#7ec850"/>
+    <rect x="696" y="362" width="38" height="36" fill="#7ec850"/>
+    <rect x="702" y="378" width="10" height="10" fill="#ffffff"/>
+    <rect x="718" y="378" width="10" height="10" fill="#ffffff"/>
+    <rect x="705" y="381" width="5" height="5" fill="#14141f"/>
+    <rect x="721" y="381" width="5" height="5" fill="#14141f"/>
+  </g>
+
+  <!-- Big zombie -->
+  <g>
+    <rect x="852" y="452" width="20" height="60" fill="#4a3b5c"/>
+    <rect x="886" y="452" width="20" height="60" fill="#4a3b5c"/>
+    <rect x="844" y="368" width="70" height="84" fill="#5c3b3b"/>
+    <rect x="776" y="386" width="48" height="16" fill="#7ec850"/>
+    <rect x="850" y="306" width="56" height="52" fill="#7ec850"/>
+    <rect x="860" y="330" width="14" height="14" fill="#ffffff"/>
+    <rect x="884" y="330" width="14" height="14" fill="#ffffff"/>
+    <rect x="864" y="334" width="7" height="7" fill="#14141f"/>
+    <rect x="888" y="334" width="7" height="7" fill="#14141f"/>
+  </g>
+
+  <!-- Star burst -->
+  <g fill="#ffd23f">
+    <path d="M600 330 l6 14 14 6 -14 6 -6 14 -6 -14 -14 -6 14 -6 z"/>
+    <path d="M648 372 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#ffffff"/>
+  </g>
+
+  <text x="600" y="632" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="44" fill="#c77dff" letter-spacing="6">ZOMBIE WARS</text>
+</svg>
