@@ -75,7 +75,7 @@ service cloud.firestore {
              && request.resource.data.photoURL is string
              && request.resource.data.game in [
                'snake', 'tictactoe', 'block-puzzle', 'terrain-quest', 'retro-fight',
-               'zombie-wars'
+               'zombie-wars', 'sushi-catch'
              ]
              && request.resource.data.score is int
              && request.resource.data.score >= 0
