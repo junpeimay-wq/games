@@ -14,6 +14,7 @@
 | 🗺️ まちの地図記号クイズ | 地図上の記号を選び、4択で意味を学ぶ。正解記号ごとに100点、既知の記号は10点 | [遊ぶ](https://junpeimay-games.web.app/terrain-quest/) |
 | 🥊 レトロ格闘ファイト | ドット絵ファイターで戦う対CPU格闘ゲーム。パンチ・キック・ガードを使い分け、2ラウンド先取で勝利 | [遊ぶ](https://junpeimay-games.web.app/retro-fight/) |
 | 🧟 ゾンビ・ウォーズ | 戦士を召喚してゾンビの巣を壊す横視点の拠点攻防ストラテジー。ナイフ・盾・銃の編成が勝ち筋 | [遊ぶ](https://junpeimay-games.web.app/zombie-wars/) |
+| 🍣 まわるおすしキャッチ | 流れるお寿司をゾーンでキャッチする60秒のタイミングゲーム。コンボとフィーバーで得点アップ | [遊ぶ](https://junpeimay-games.web.app/sushi-catch/) |
 
 ## 操作方法
 

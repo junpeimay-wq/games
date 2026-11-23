@@ -4,7 +4,8 @@ export const GAME_LABELS = {
   'block-puzzle': '8x8ブロックパズル',
   'terrain-quest': 'まちの地図記号クイズ',
   'retro-fight': 'レトロ格闘ファイト',
-  'zombie-wars': 'ゾンビ・ウォーズ'
+  'zombie-wars': 'ゾンビ・ウォーズ',
+  'sushi-catch': 'まわるおすしキャッチ'
 };
 
 export function isNewHighScore(score, previousBest) {
