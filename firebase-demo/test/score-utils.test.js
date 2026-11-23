@@ -24,6 +24,10 @@ test('registers zombie wars as a score-capable game', () => {
   assert.equal(GAME_LABELS['zombie-wars'], 'ゾンビ・ウォーズ');
 });
 
+test('registers sushi catch as a score-capable game', () => {
+  assert.equal(GAME_LABELS['sushi-catch'], 'まわるおすしキャッチ');
+});
+
 test('retro fight streaks increase on wins and reset on losses', () => {
   assert.equal(nextRetroFightStreak(true, 4), 5);
   assert.equal(nextRetroFightStreak(true, 0), 1);
