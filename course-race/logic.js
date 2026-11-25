@@ -15,35 +15,52 @@ export const TILE = {
 };
 
 // チャレンジコース（全員同じ条件）。start / goal は [col, row]。
+// requiredStars: クリアに必要な、ルート上で取るスターの数。
+// timeLimit: レースの制限時間（秒）。障害物は壁状に配置し、
+// まっすぐ進むだけでは抜けられないようにしている（ADR-0003）。
 export const STAGES = [
   {
     name: 'はじめてのコース',
     start: [0, 4],
     goal: [11, 3],
-    obstacles: [[5, 2], [5, 3], [6, 5], [3, 6], [8, 1]]
+    requiredStars: 2,
+    timeLimit: 15,
+    obstacles: [[5, 3], [5, 4], [5, 5], [5, 6], [8, 1], [3, 6], [9, 5]]
   },
   {
     name: 'もりをぬけて',
     start: [0, 4],
     goal: [11, 4],
-    obstacles: [[6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [3, 2], [8, 5], [9, 2]]
+    requiredStars: 3,
+    timeLimit: 20,
+    obstacles: [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4],
+      [8, 3], [8, 4], [8, 5], [8, 6], [8, 7], [2, 2], [10, 5]]
   },
   {
     name: 'ぐるぐる山道',
     start: [0, 6],
     goal: [11, 1],
-    obstacles: [[4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7],
-      [8, 0], [8, 1], [8, 2], [8, 3], [8, 4], [8, 5], [2, 5], [10, 2]]
+    requiredStars: 4,
+    timeLimit: 25,
+    obstacles: [[3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7],
+      [6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [6, 5],
+      [9, 2], [9, 3], [9, 4], [9, 5], [9, 6], [9, 7], [1, 5], [5, 3]]
   }
 ];
 
-// フリーモードの初期配置（障害物なし）
+// フリーモードの初期配置（障害物なし・スター必須なし・制限時間なし）
 export const FREE_STAGE = {
   name: 'フリー',
   start: [0, 4],
   goal: [11, 3],
+  requiredStars: 0,
+  timeLimit: null,
   obstacles: []
 };
+
+// チャレンジで置ける数（フリーは無制限）。スコアの伸びすぎを防ぐ（ADR-0003）
+export const CHALLENGE_STAR_LIMIT = 5;
+export const CHALLENGE_BOOST_LIMIT = 3;
 
 const key = (x, y) => `${x},${y}`;
 
@@ -119,6 +136,28 @@ export function findPath(grid, start, goal) {
     }
   }
   return null;
+}
+
+// グリッド内の特定タイルの数を数える
+export function countTiles(grid, tile) {
+  let count = 0;
+  for (const row of grid) {
+    for (const cell of row) {
+      if (cell === tile) count += 1;
+    }
+  }
+  return count;
+}
+
+// パス（セル列）の上にあるスターの数。車はこのパスを通るため、
+// 実際に取れるスターの数と一致する。
+export function starsOnPath(grid, path) {
+  if (!path) return 0;
+  let count = 0;
+  for (const [x, y] of path) {
+    if (grid[y][x] === TILE.STAR) count += 1;
+  }
+  return count;
 }
 
 // ステージのスコア: ゴールで500点＋スター100点ずつ、
