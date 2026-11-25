@@ -15,6 +15,7 @@
 | 🥊 レトロ格闘ファイト | ドット絵ファイターで戦う対CPU格闘ゲーム。パンチ・キック・ガードを使い分け、2ラウンド先取で勝利 | [遊ぶ](https://junpeimay-games.web.app/retro-fight/) |
 | 🧟 ゾンビ・ウォーズ | 戦士を召喚してゾンビの巣を壊す横視点の拠点攻防ストラテジー。ナイフ・盾・銃の編成が勝ち筋 | [遊ぶ](https://junpeimay-games.web.app/zombie-wars/) |
 | 🍣 まわるおすしキャッチ | 流れるお寿司をゾーンでキャッチする60秒のタイミングゲーム。コンボとフィーバーで得点アップ | [遊ぶ](https://junpeimay-games.web.app/sushi-catch/) |
+| 🏎️ コースづくりレース | 道を描いてコースを作り、車を自動で走らせるゲーム。作ったコースは保存もできる | [遊ぶ](https://junpeimay-games.web.app/course-race/) |
 
 ## 操作方法
 
