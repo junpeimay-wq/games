@@ -15,6 +15,9 @@ import {
   saveCourseRaceCourses
 } from '../firebase-demo/score-service.js';
 import {
+  BONUS_INTERVAL_SEC,
+  BONUS_LIFETIME_SEC,
+  BONUS_POINTS,
   CHALLENGE_BOOST_LIMIT,
   CHALLENGE_STAR_LIMIT,
   COLS,
@@ -28,6 +31,7 @@ import {
   deserializeGrid,
   findPath,
   isRoad,
+  pickBonusIndex,
   serializeGrid,
   stageScore,
   starsOnPath
@@ -50,8 +54,11 @@ const msgEl = document.getElementById('msg');
 const freePanel = document.getElementById('free-panel');
 const savedListEl = document.getElementById('saved-list');
 
-const BEST_KEY = 'course-race-best-score';
-const STAGE_BEST_KEY = 'course-race-stage-bests';
+// 難易度見直し（ADR-0003）で旧ルールのベストをリセットするため、
+// ベスト系の保存キーは v2 に versioned している（ADR-0004）。
+// 保存コースのキーはスコアではないので据え置き。
+const BEST_KEY = 'course-race-best-score-v2';
+const STAGE_BEST_KEY = 'course-race-stage-bests-v2';
 const SAVED_KEY = 'course-race-saved-courses';
 
 let stageBests = [0, 0, 0];
@@ -107,6 +114,7 @@ const sounds = {
   go: () => { beep(523, 0.09); beep(784, 0.12, 'square', 0.05, 0.09); },
   star: () => beep(1318, 0.1, 'square', 0.05),
   boost: () => { beep(392, 0.08); beep(587, 0.08, 'square', 0.05, 0.06); beep(880, 0.1, 'square', 0.05, 0.12); },
+  bonus: () => { beep(1568, 0.08, 'square', 0.05); beep(2093, 0.14, 'square', 0.05, 0.07); },
   stuck: () => beep(180, 0.2, 'sawtooth', 0.05),
   clear: () => { beep(659, 0.1); beep(784, 0.1, 'square', 0.05, 0.1); beep(1046, 0.18, 'square', 0.05, 0.2); }
 };
@@ -124,6 +132,10 @@ let carPos = { x: 0, y: 0 };
 let carAngle = 0;
 let raceTime = 0;
 let boostUntil = -1;
+let bonus = null; // 金のスター { index, expiresAt }（チャレンジのみ出現）
+let nextBonusAt = 0;
+let bonusCount = 0;
+let bonusPoints = 0;
 let nextCellIndex = 0; // 次にアイテム判定をするパス上のセル番号
 let collected = new Set();
 let lastStageScore = 0;
@@ -167,6 +179,10 @@ function resetRace() {
   carDist = 0;
   raceTime = 0;
   boostUntil = -1;
+  bonus = null;
+  nextBonusAt = 0;
+  bonusCount = 0;
+  bonusPoints = 0;
   collected = new Set();
   effects = [];
   const start = cellCenter(stage.start[0], stage.start[1]);
@@ -210,6 +226,10 @@ function startRace() {
   carDist = 0;
   raceTime = 0;
   boostUntil = -1;
+  bonus = null;
+  nextBonusAt = BONUS_INTERVAL_SEC;
+  bonusCount = 0;
+  bonusPoints = 0;
   nextCellIndex = 0;
   collected = new Set();
   phase = 'race';
@@ -247,7 +267,8 @@ function totalPathLength() {
 
 function finishRace() {
   phase = 'clear';
-  lastStageScore = stageScore({ stars: currentStars(), timeSec: raceTime, cleared: true });
+  lastStageScore = stageScore({ stars: currentStars(), timeSec: raceTime, cleared: true })
+    + (mode === 'challenge' ? bonusPoints : 0);
   sounds.clear();
   for (let i = 0; i < 24; i += 1) {
     effects.push({
@@ -265,7 +286,7 @@ function finishRace() {
       localStorage.setItem(STAGE_BEST_KEY, JSON.stringify(stageBests));
     }
     const total = localTotal();
-    msgEl.textContent = `ゴール！ ${lastStageScore}点（合計 ${total}点）`;
+    msgEl.textContent = `ゴール！ ${lastStageScore}点${bonusCount > 0 ? `（金のスター×${bonusCount}！）` : ''}（合計 ${total}点）`;
     setStatus(stageIndex === STAGES.length - 1 ? '全コース クリア！' : 'クリア！ タップで次のコースへ');
     if (total > best && !recorded) {
       recorded = true;
@@ -307,10 +328,27 @@ function update(dt) {
   const point = pathPoint(Math.min(carDist, totalPathLength()));
   carPos = { x: point.x, y: point.y };
   carAngle = point.angle;
+  // 金のスター（チャレンジのみ）: 一定間隔で車の前方のルート上に出現し、
+  // 制限時間が過ぎると消える
+  if (mode === 'challenge') {
+    if (bonus && raceTime > bonus.expiresAt) bonus = null;
+    if (!bonus && raceTime >= nextBonusAt) {
+      nextBonusAt = raceTime + BONUS_INTERVAL_SEC;
+      const idx = pickBonusIndex(carPath.length, nextCellIndex, Math.random());
+      if (idx >= 0) bonus = { index: idx, expiresAt: raceTime + BONUS_LIFETIME_SEC };
+    }
+  }
   // セルの中心に到達したときのアイテム処理（セル i の中心は距離 i*CELL）
   while (nextCellIndex < carPath.length && carDist >= nextCellIndex * CELL) {
     const [cx, cy] = carPath[nextCellIndex];
     nextCellIndex += 1;
+    if (bonus && nextCellIndex - 1 === bonus.index) {
+      bonus = null;
+      bonusCount += 1;
+      bonusPoints += BONUS_POINTS;
+      effects.push({ kind: 'text', x: carPos.x, y: carPos.y - 24, vy: -26, life: 0.9, text: `金のスター +${BONUS_POINTS}`, color: '#ffe95a' });
+      sounds.bonus();
+    }
     const tile = grid[cy][cx];
     const k = cellKey(cx, cy);
     if (collected.has(k)) continue;
@@ -424,6 +462,15 @@ function draw() {
   ctx.strokeStyle = '#ffd23f';
   ctx.lineWidth = 2;
   ctx.strokeRect(g.x - 15, g.y - 15, 30, 30);
+
+  // 金のスター（出現中のみ、大きめに脈打たせて描く）
+  if (bonus && carPath) {
+    const [bx, by] = carPath[bonus.index];
+    const bc = cellCenter(bx, by);
+    const pulse = 14 + Math.sin(raceTime * 10) * 2.5;
+    drawStar(bc.x, bc.y, pulse, '#ffe95a');
+    drawStar(bc.x, bc.y, pulse * 0.5, '#fff6bf');
+  }
 
   // 車（上から見たドット絵）
   ctx.save();
