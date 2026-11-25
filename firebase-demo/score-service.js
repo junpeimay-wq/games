@@ -17,6 +17,7 @@ import {
   GAME_LABELS,
   claimRankingPrompt,
   isNewHighScore,
+  isValidCourseRaceCourses,
   updateMapSymbolProgress
 } from './score-utils.js';
 
@@ -301,4 +302,38 @@ export async function recordMapSymbolAnswer(symbolId, isCorrect) {
     }
     return { ...nextProgress, totalPoints };
   });
+}
+
+// ---- コースづくりレースの保存コース（users/{uid}/courseRace/courses） ----
+// 端末の localStorage と同じコース一覧を、Googleログイン中はクラウドにも
+// 保存し、別の端末でも呼び出せるようにする。未ログイン時は null / false。
+
+export async function loadCourseRaceCourses() {
+  await authReady;
+  const user = currentUser || auth.currentUser;
+  if (!user) return null;
+
+  const snapshot = await getDoc(doc(db, 'users', user.uid, 'courseRace', 'courses'));
+  if (!snapshot.exists()) return null;
+  const data = snapshot.data();
+  if (data.uid !== user.uid || !isValidCourseRaceCourses(data.courses)) {
+    throw new Error('Invalid course race courses document.');
+  }
+  return data.courses.map((course) => ({ name: course.name, grid: course.grid }));
+}
+
+export async function saveCourseRaceCourses(courses) {
+  if (!isValidCourseRaceCourses(courses)) {
+    throw new Error('Invalid course list.');
+  }
+  await authReady;
+  const user = currentUser || auth.currentUser;
+  if (!user) return false;
+
+  await setDoc(doc(db, 'users', user.uid, 'courseRace', 'courses'), {
+    uid: user.uid,
+    courses: courses.map((course) => ({ name: course.name, grid: course.grid })),
+    updatedAt: serverTimestamp()
+  });
+  return true;
 }

@@ -56,10 +56,59 @@ service cloud.firestore {
                     );
     }
 
+    match /users/{userId}/courseRace/{docId} {
+      allow read: if isCourseRaceOwner(userId, docId);
+      allow create, update: if isCourseRaceOwner(userId, docId)
+                            && validCourseRaceCourses(userId);
+    }
+
     function isProgressOwner(userId, progressId) {
       return request.auth != null
              && request.auth.uid == userId
              && progressId == 'progress';
+    }
+
+    function isCourseRaceOwner(userId, docId) {
+      return request.auth != null
+             && request.auth.uid == userId
+             && docId == 'courses';
+    }
+
+    function validCourseEntry(entry) {
+      return entry is map
+             && entry.keys().hasAll(['name', 'grid'])
+             && entry.keys().hasOnly(['name', 'grid'])
+             && entry.name is string
+             && entry.name.size() > 0
+             && entry.name.size() <= 20
+             && entry.grid is string
+             && entry.grid.size() <= 120;
+    }
+
+    function validCourseRaceCourses(userId) {
+      return request.resource.data.keys().hasAll([
+               'uid', 'courses', 'updatedAt'
+             ])
+             && request.resource.data.keys().hasOnly([
+               'uid', 'courses', 'updatedAt'
+             ])
+             && request.resource.data.uid == userId
+             && request.resource.data.courses is list
+             && request.resource.data.courses.size() <= 6
+             && (request.resource.data.courses.size() < 1
+                 || validCourseEntry(request.resource.data.courses[0]))
+             && (request.resource.data.courses.size() < 2
+                 || validCourseEntry(request.resource.data.courses[1]))
+             && (request.resource.data.courses.size() < 3
+                 || validCourseEntry(request.resource.data.courses[2]))
+             && (request.resource.data.courses.size() < 4
+                 || validCourseEntry(request.resource.data.courses[3]))
+             && (request.resource.data.courses.size() < 5
+                 || validCourseEntry(request.resource.data.courses[4]))
+             && (request.resource.data.courses.size() < 6
+                 || validCourseEntry(request.resource.data.courses[5]))
+             && request.resource.data.updatedAt is timestamp
+             && request.resource.data.updatedAt == request.time;
     }
 
     function validScore() {
@@ -75,7 +124,7 @@ service cloud.firestore {
              && request.resource.data.photoURL is string
              && request.resource.data.game in [
                'snake', 'tictactoe', 'block-puzzle', 'terrain-quest', 'retro-fight',
-               'zombie-wars', 'sushi-catch'
+               'zombie-wars', 'sushi-catch', 'course-race'
              ]
              && request.resource.data.score is int
              && request.resource.data.score >= 0

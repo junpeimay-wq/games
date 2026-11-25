@@ -5,7 +5,8 @@ export const GAME_LABELS = {
   'terrain-quest': 'まちの地図記号クイズ',
   'retro-fight': 'レトロ格闘ファイト',
   'zombie-wars': 'ゾンビ・ウォーズ',
-  'sushi-catch': 'まわるおすしキャッチ'
+  'sushi-catch': 'まわるおすしキャッチ',
+  'course-race': 'コースづくりレース'
 };
 
 export function isNewHighScore(score, previousBest) {
@@ -64,4 +65,24 @@ export function updateMapSymbolProgress(previous, symbolId, isCorrect) {
     knownBefore,
     pointsAwarded: isCorrect ? (knownBefore ? 10 : 100) : 0
   };
+}
+
+// コースづくりレースの保存コース（users/{uid}/courseRace/courses）の検証。
+// 保存形式は course-race/logic.js の serializeGrid と同じ、
+// 12マス×8行の数字（0〜4）を '/' でつないだ文字列グリッド。
+export const COURSE_RACE_MAX_COURSES = 6;
+export const COURSE_RACE_NAME_MAX_LENGTH = 20;
+export const COURSE_RACE_GRID_PATTERN = /^[0-4]{12}(\/[0-4]{12}){7}$/;
+
+export function isValidCourseRaceCourses(courses) {
+  return Array.isArray(courses)
+    && courses.length <= COURSE_RACE_MAX_COURSES
+    && courses.every((course) => course
+      && typeof course === 'object'
+      && !Array.isArray(course)
+      && typeof course.name === 'string'
+      && course.name.length >= 1
+      && course.name.length <= COURSE_RACE_NAME_MAX_LENGTH
+      && typeof course.grid === 'string'
+      && COURSE_RACE_GRID_PATTERN.test(course.grid));
 }

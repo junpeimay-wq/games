@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FDT7JTRCNE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-FDT7JTRCNE');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏎️ コースづくりレース - GAME ARCADE</title>
+  <meta name="description" content="マス目に道を描いて自分だけのコースを作り、車を自動で走らせるゲーム。障害物を避けてスターを集めよう。作ったコースは保存もできる。キーボードとスマホのタッチ操作の両方に対応。">
+  <link rel="canonical" href="https://junpeimay-games.web.app/course-race/">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+  <script src="/pwa.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../firebase-demo/shared-score.css">
+</head>
+<body>
+  <main>
+  <h1>🏎️ コースづくりレース</h1>
+  <div id="info"><span id="stage">コース1</span>　⭐ <span id="stars">0</span>　タイム: <span id="time">0.0</span>　ベストスコア: <span id="best">0</span></div>
+  <a class="ranking-link" href="../ranking/course-race.html">🏆 スコアランキング</a>
+  <p id="ranking-status" class="ranking-status" aria-live="polite"></p>
+  <p id="status" class="status" aria-live="polite">タイトル画面で待機中</p>
+  <canvas id="c" width="480" height="320"></canvas>
+  <div id="msg">みちをなぞって描いて、GO！</div>
+  <div id="pad">
+    <div class="pad-group">
+      <button id="btn-tool-road" aria-label="みちを描く"><span class="btn-icon">🛣️</span><span class="btn-label">みち</span></button>
+      <button id="btn-tool-star" aria-label="スターを置く"><span class="btn-icon">⭐</span><span class="btn-label">スター</span></button>
+      <button id="btn-tool-boost" aria-label="ブーストを置く"><span class="btn-icon">🚀</span><span class="btn-label">ブースト</span></button>
+      <button id="btn-tool-erase" aria-label="消しゴム"><span class="btn-icon">🧽</span><span class="btn-label">けしゴム</span></button>
+    </div>
+    <div class="pad-group">
+      <button id="btn-go" class="go" aria-label="レーススタート"><span class="btn-icon">🏁</span><span class="btn-label">GO！</span></button>
+      <button id="btn-clear-course" aria-label="コースを全部消す"><span class="btn-icon">🗑️</span><span class="btn-label">ぜんぶ消す</span></button>
+      <button id="btn-prev-stage" aria-label="前のコース"><span class="btn-icon">◀</span><span class="btn-label">まえ</span></button>
+      <button id="btn-next-stage" aria-label="次のコース"><span class="btn-icon">▶</span><span class="btn-label">つぎ</span></button>
+      <button id="btn-mode" aria-label="フリーモードと切り替え"><span class="btn-icon">🎨</span><span class="btn-label">フリーへ</span></button>
+    </div>
+    <div id="free-panel">
+      <button id="btn-save-course" aria-label="コースを保存する"><span class="btn-icon">💾</span><span class="btn-label">ほぞん</span></button>
+      <div id="saved-list" aria-label="保存したコース"></div>
+    </div>
+  </div>
+  <section class="game-guide" aria-labelledby="game-guide-title">
+    <h2 id="game-guide-title">遊び方</h2>
+    <p>マス目のフィールドに「みち」を描いて、スタートからゴール（チェッカーフラッグ）までつなげます。みちは指やマウスでなぞって描けます。つながると白い点線でルートが表示されます。「GO！」を押すと車が自動で走ります。ゴールまでつながっていないと車は出発しません。</p>
+    <p>置けるものは、みち・⭐スター（取ると+100点）・🚀ブースト（乗ると速くなる）の3つと、消しゴムです。スターとブーストは、みちの上にタップして置きます（もう一度押すと外れます）。木や岩の障害物は消せません。避けて道を描きましょう。</p>
+    <p>チャレンジは障害物の配置が決まった3コースです。スコアはゴールで500点＋スター100点ずつ、かかった時間で少し減点（最大400点）です。各コースのベストスコアの合計がランキングのスコアになります。何度も挑戦して合計を伸ばしましょう。</p>
+    <p>フリーモードは障害物なしで自由に作れます。作ったコースは「ほぞん」で6つまで保存でき、いつでも呼び出して走らせられます（フリーモードのスコアはランキングには入りません）。保存したコースは端末に残るほか、Googleログイン中はクラウドにも保存されるので、別のスマホやタブレットでも同じコースを呼び出せます。</p>
+    <p>PCでは 1 / 2 / 3 / 4 キーで道具の切り替え、Enter（またはスペース）でGOです。自己ベストは端末に保存され、自己ベストを更新したときはランキングに自動で記録されます（記録にはGoogle認証が必要です。未認証の場合は記録するかどうかを確認します）。Googleログイン済みの場合は、起動時にクラウド上の自己ベストを読み込んで表示します。</p>
+  </section>
+  </main>
+  <script type="module" src="game.js"></script>
+</body>
+</html>

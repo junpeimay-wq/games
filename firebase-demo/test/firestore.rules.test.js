@@ -48,6 +48,17 @@ function scoreData(uid, overrides = {}) {
   };
 }
 
+function courseRaceData(uid, courses, overrides = {}) {
+  return {
+    uid,
+    courses,
+    updatedAt: serverTimestamp(),
+    ...overrides
+  };
+}
+
+const validCourseGrid = Array(8).fill('000000000000').join('/');
+
 function symbolProgressData(uid, symbols, overrides = {}) {
   return {
     uid,
@@ -90,7 +101,7 @@ test('allows an authenticated user to create a valid score for their UID', async
   const uid = 'score-owner';
   const db = testEnv.authenticatedContext(uid).firestore();
 
-  for (const game of ['snake', 'tictactoe', 'block-puzzle', 'terrain-quest', 'retro-fight', 'zombie-wars', 'sushi-catch']) {
+  for (const game of ['snake', 'tictactoe', 'block-puzzle', 'terrain-quest', 'retro-fight', 'zombie-wars', 'sushi-catch', 'course-race']) {
     await assertSucceeds(
       setDoc(
         doc(db, 'scores', `${game}_${uid}`),
@@ -301,4 +312,67 @@ test('rejects deletes, including by the score owner', async () => {
 
   const db = testEnv.authenticatedContext('score-owner').firestore();
   await assertFails(deleteDoc(doc(db, 'scores', 'snake_score-owner')));
+});
+
+test('creates, reads and replaces the owner course race courses document', async () => {
+  const uid = 'course-racer';
+  const db = testEnv.authenticatedContext(uid).firestore();
+  const coursesRef = doc(db, 'users', uid, 'courseRace', 'courses');
+  await assertSucceeds(setDoc(coursesRef, courseRaceData(uid, [
+    { name: 'コース1', grid: validCourseGrid }
+  ])));
+  await assertSucceeds(getDoc(coursesRef));
+  await assertSucceeds(setDoc(coursesRef, courseRaceData(uid, [
+    { name: 'コース1', grid: validCourseGrid },
+    { name: 'コース2', grid: validCourseGrid }
+  ])));
+  await assertSucceeds(setDoc(coursesRef, courseRaceData(uid, [])));
+
+  await assertFails(getDoc(
+    doc(testEnv.unauthenticatedContext().firestore(), 'users', uid, 'courseRace', 'courses')
+  ));
+  const otherUserDb = testEnv.authenticatedContext('another-racer').firestore();
+  await assertFails(getDoc(doc(otherUserDb, 'users', uid, 'courseRace', 'courses')));
+  await assertFails(deleteDoc(coursesRef));
+});
+
+test('rejects unauthenticated, spoofed and malformed course race course writes', async () => {
+  const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+  await assertFails(setDoc(
+    doc(unauthenticatedDb, 'users', 'course-racer', 'courseRace', 'courses'),
+    courseRaceData('course-racer', [])
+  ));
+
+  const uid = 'course-racer-invalid';
+  const db = testEnv.authenticatedContext(uid).firestore();
+  const coursesRef = doc(db, 'users', uid, 'courseRace', 'courses');
+  // 他人の uid を名乗る
+  await assertFails(setDoc(coursesRef, courseRaceData('different-user', [])));
+  // 他人のドキュメントへの書き込み
+  await assertFails(setDoc(
+    doc(db, 'users', 'different-user', 'courseRace', 'courses'),
+    courseRaceData('different-user', [])
+  ));
+  // ドキュメント名が違う
+  await assertFails(setDoc(
+    doc(db, 'users', uid, 'courseRace', 'other'),
+    courseRaceData(uid, [])
+  ));
+  // 7件は多すぎる
+  await assertFails(setDoc(coursesRef, courseRaceData(uid,
+    Array(7).fill({ name: 'コース1', grid: validCourseGrid })
+  )));
+  // 余分なキー
+  await assertFails(setDoc(coursesRef, courseRaceData(uid, [
+    { name: 'コース1', grid: validCourseGrid, extra: 1 }
+  ])));
+  // 名前が長すぎる・グリッドが長すぎる
+  await assertFails(setDoc(coursesRef, courseRaceData(uid, [
+    { name: 'x'.repeat(21), grid: validCourseGrid }
+  ])));
+  await assertFails(setDoc(coursesRef, courseRaceData(uid, [
+    { name: 'コース1', grid: '0'.repeat(121) }
+  ])));
+  // 余分なフィールド
+  await assertFails(setDoc(coursesRef, courseRaceData(uid, [], { extra: true })));
 });

@@ -5,6 +5,7 @@ import {
   formatScore,
   GAME_LABELS,
   isNewHighScore,
+  isValidCourseRaceCourses,
   nextRetroFightStreak,
   nextTicTacToeStreak,
   rankScores,
@@ -26,6 +27,27 @@ test('registers zombie wars as a score-capable game', () => {
 
 test('registers sushi catch as a score-capable game', () => {
   assert.equal(GAME_LABELS['sushi-catch'], 'まわるおすしキャッチ');
+});
+
+test('registers course race as a score-capable game', () => {
+  assert.equal(GAME_LABELS['course-race'], 'コースづくりレース');
+});
+
+const validGrid = Array(8).fill('000000000000').join('/');
+
+test('accepts a valid course race course list', () => {
+  assert.equal(isValidCourseRaceCourses([]), true);
+  assert.equal(isValidCourseRaceCourses([{ name: 'コース1', grid: validGrid }]), true);
+});
+
+test('rejects invalid course race course lists', () => {
+  assert.equal(isValidCourseRaceCourses('nope'), false);
+  assert.equal(isValidCourseRaceCourses([{ name: '', grid: validGrid }]), false);
+  assert.equal(isValidCourseRaceCourses([{ name: 'x'.repeat(21), grid: validGrid }]), false);
+  assert.equal(isValidCourseRaceCourses([{ name: 'コース1', grid: 'short' }]), false);
+  assert.equal(isValidCourseRaceCourses([{ name: 'コース1', grid: validGrid.replace('0', '9') }]), false);
+  assert.equal(isValidCourseRaceCourses(Array(7).fill({ name: 'コース1', grid: validGrid })), false);
+  assert.equal(isValidCourseRaceCourses([null]), false);
 });
 
 test('retro fight streaks increase on wins and reset on losses', () => {
