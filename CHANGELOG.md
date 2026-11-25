@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.8.0](https://github.com/junpeimay-wq/games/compare/v0.7.1...v0.8.0) (2026-11-25)
+
+
+### Features
+
+* **course-race:** 金のスター（ランダムボーナス）を追加 ([#46](https://github.com/junpeimay-wq/games/issues/46)) ([122aaf8](https://github.com/junpeimay-wq/games/commit/122aaf8486a3917577fcc0b274469b8fa2740d7d))
+* **course-race:** 難易度見直し（スター必須・制限時間・迷路化・配置上限） ([#44](https://github.com/junpeimay-wq/games/issues/44)) ([8722c2f](https://github.com/junpeimay-wq/games/commit/8722c2fec9956298f80ab6944d4afb32ad8d4a99))
+* **firebase-demo:** ランキング確認ダイアログをセッションに1回だけ表示（ADR-0016） ([#37](https://github.com/junpeimay-wq/games/issues/37)) ([a4cac9c](https://github.com/junpeimay-wq/games/commit/a4cac9ca75d7b36ff7d81c6a1eeae51b62adba6f))
+* **ranking:** ゲーム別ランキングページに全ゲームへのナビを追加 ([#38](https://github.com/junpeimay-wq/games/issues/38)) ([8e453af](https://github.com/junpeimay-wq/games/commit/8e453af7d2871a061874ab23841bdac6d9b23c3b))
+* **retro-fight:** 必殺技ゲージの追加とタッチボタンの2段化 ([#36](https://github.com/junpeimay-wq/games/issues/36)) ([f7b1156](https://github.com/junpeimay-wq/games/commit/f7b11567eb7e7d5ff1db56da51447f620aad2407))
+* コースづくりレースを追加（クラウド保存対応） ([#43](https://github.com/junpeimay-wq/games/issues/43)) ([7c08ca6](https://github.com/junpeimay-wq/games/commit/7c08ca64927385497a34db9e4af79f79bb06ddaa))
+* ゾンビ・ウォーズ（拠点攻防ストラテジー）を追加 ([#41](https://github.com/junpeimay-wq/games/issues/41)) ([b018f5a](https://github.com/junpeimay-wq/games/commit/b018f5ac90f9cea14a1ed43ce60e7185555b2ed1))
+* まわるおすしキャッチ（2026年12月の新作ゲーム） ([#42](https://github.com/junpeimay-wq/games/issues/42)) ([486a3a5](https://github.com/junpeimay-wq/games/commit/486a3a54a0276877cb7ae9f275399d726f6a7ade))
+* レトロ格闘ファイト（対CPU）を追加 ([#34](https://github.com/junpeimay-wq/games/issues/34)) ([7b9fa99](https://github.com/junpeimay-wq/games/commit/7b9fa9911fdf5b8129aeee1c41b4db7b05d5224f))
+
+
+### Bug Fixes
+
+* **retro-fight:** タブレットでタッチパッドが表示されない問題を修正（ADR-0017） ([#39](https://github.com/junpeimay-wq/games/issues/39)) ([b8b2963](https://github.com/junpeimay-wq/games/commit/b8b29635feb8915114366d2d6df4ae2e6001e2aa))
+
 ## [0.7.1](https://github.com/junpeimay-wq/games/compare/v0.7.0...v0.7.1) (2026-10-17)
 
 
