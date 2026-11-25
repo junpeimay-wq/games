@@ -15,18 +15,22 @@ import {
   saveCourseRaceCourses
 } from '../firebase-demo/score-service.js';
 import {
+  CHALLENGE_BOOST_LIMIT,
+  CHALLENGE_STAR_LIMIT,
   COLS,
   FREE_STAGE,
   ROWS,
   STAGES,
   TILE,
   applyTool,
+  countTiles,
   createGrid,
   deserializeGrid,
   findPath,
   isRoad,
   serializeGrid,
-  stageScore
+  stageScore,
+  starsOnPath
 } from './logic.js';
 
 const CELL = 40;
@@ -144,7 +148,7 @@ function loadStage(index) {
   resetRace();
   stageEl.textContent = `コース${stageIndex + 1} ${stage.name}`;
   setStatus('みちを描いてコースを作ろう');
-  msgEl.textContent = 'みちをなぞって描いて、GO！';
+  msgEl.textContent = `⭐${stage.requiredStars}こ以上とってゴール！ 制限時間${stage.timeLimit}秒`;
 }
 
 function loadFree() {
@@ -192,6 +196,15 @@ function startRace() {
     msgEl.textContent = 'みちをつなげてみよう';
     sounds.stuck();
     return;
+  }
+  if (stage.requiredStars > 0) {
+    const onRoute = starsOnPath(grid, path);
+    if (onRoute < stage.requiredStars) {
+      setStatus(`ルートの⭐が あと${stage.requiredStars - onRoute}こ たりないよ`);
+      msgEl.textContent = 'スターの上を通るコースにしよう';
+      sounds.stuck();
+      return;
+    }
   }
   carPath = path;
   carDist = 0;
@@ -277,7 +290,18 @@ function update(dt) {
   effects = effects.filter((effect) => effect.life > 0);
   if (phase !== 'race') return;
   raceTime += dt;
-  timeEl.textContent = raceTime.toFixed(1);
+  if (stage.timeLimit) {
+    timeEl.textContent = Math.max(0, stage.timeLimit - raceTime).toFixed(1);
+    if (raceTime > stage.timeLimit) {
+      resetRace();
+      setStatus('じかんぎれ！');
+      msgEl.textContent = 'もう少し短いコースにしてみよう';
+      sounds.stuck();
+      return;
+    }
+  } else {
+    timeEl.textContent = raceTime.toFixed(1);
+  }
   const speed = raceTime < boostUntil ? 260 : 120;
   carDist += speed * dt;
   const point = pathPoint(Math.min(carDist, totalPathLength()));
@@ -472,11 +496,27 @@ function cellFromEvent(event) {
   const y = Math.floor(((event.clientY - rect.top) * (H / rect.height)) / CELL);
   return { x, y };
 }
-function paintAt(event) {
-  const { x, y } = cellFromEvent(event);
+function paintCell(x, y) {
+  // チャレンジでは置けるスターとブーストに上限がある（ADR-0003）
+  if (mode === 'challenge') {
+    if (tool === 'star' && grid[y]?.[x] === TILE.ROAD
+      && countTiles(grid, TILE.STAR) >= CHALLENGE_STAR_LIMIT) {
+      setStatus(`⭐は ${CHALLENGE_STAR_LIMIT}こまでだよ`);
+      return;
+    }
+    if (tool === 'boost' && grid[y]?.[x] === TILE.ROAD
+      && countTiles(grid, TILE.BOOST) >= CHALLENGE_BOOST_LIMIT) {
+      setStatus(`🚀は ${CHALLENGE_BOOST_LIMIT}こまでだよ`);
+      return;
+    }
+  }
   const before = grid[y]?.[x];
   grid = applyTool(grid, stage, tool, x, y);
   if (grid[y]?.[x] !== before) sounds.place();
+}
+function paintAt(event) {
+  const { x, y } = cellFromEvent(event);
+  paintCell(x, y);
 }
 canvas.addEventListener('pointerdown', (event) => {
   if (phase === 'clear') {
