@@ -50,8 +50,11 @@ const msgEl = document.getElementById('msg');
 const freePanel = document.getElementById('free-panel');
 const savedListEl = document.getElementById('saved-list');
 
-const BEST_KEY = 'course-race-best-score';
-const STAGE_BEST_KEY = 'course-race-stage-bests';
+// 難易度見直し（ADR-0003）で旧ルールのベストをリセットするため、
+// ベスト系の保存キーは v2 に versioned している（ADR-0004）。
+// 保存コースのキーはスコアではないので据え置き。
+const BEST_KEY = 'course-race-best-score-v2';
+const STAGE_BEST_KEY = 'course-race-stage-bests-v2';
 const SAVED_KEY = 'course-race-saved-courses';
 
 let stageBests = [0, 0, 0];
