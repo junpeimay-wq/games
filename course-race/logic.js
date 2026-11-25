@@ -62,6 +62,23 @@ export const FREE_STAGE = {
 export const CHALLENGE_STAR_LIMIT = 5;
 export const CHALLENGE_BOOST_LIMIT = 3;
 
+// 金のスター（チャレンジのランダムボーナス、ADR-0004）。
+// レース中に一定間隔で車の前方のルート上に出現し、制限時間内に
+// 通るとボーナス点が入る。旧ルールの記録を新ルールでも更新できる
+// ように、天井を引き上げる目的で入れた。
+export const BONUS_POINTS = 500;
+export const BONUS_INTERVAL_SEC = 2.2;
+export const BONUS_LIFETIME_SEC = 3.5;
+
+// 車の前方（nextIndex から minAhead マス以上先）から出現セルを選ぶ。
+// 置ける場所がなければ -1。randomValue は 0 以上 1 未満。
+export function pickBonusIndex(pathLength, nextIndex, randomValue, minAhead = 2) {
+  const min = nextIndex + minAhead;
+  if (min > pathLength - 1) return -1;
+  const span = pathLength - min;
+  return min + Math.min(span - 1, Math.floor(randomValue * span));
+}
+
 const key = (x, y) => `${x},${y}`;
 
 // ステージ定義からグリッドを作る。grid は行優先の2次元配列 grid[y][x]。
