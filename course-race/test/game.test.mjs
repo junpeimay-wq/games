@@ -8,7 +8,7 @@ import vm from 'node:vm';
 // 純粋ロジック（logic.js）は実物を読み込んで使う。
 // ここではゲーム本体の進行（編集・出発可否・レース・ゴール・スコア記録）を検証する。
 
-function loadGame({ cloudCourses = null } = {}) {
+function loadGame({ cloudCourses = null, seed = {} } = {}) {
   const calls = { record: [], saveCourses: [] };
   const handlers = {};
   const elements = {};
@@ -38,6 +38,7 @@ function loadGame({ cloudCourses = null } = {}) {
     classList: { toggle: () => {}, add: () => {}, remove: () => {} }
   });
 
+  Object.assign(store, seed);
   const sandbox = {
     console,
     document: {
@@ -120,6 +121,16 @@ function loadGame({ cloudCourses = null } = {}) {
   };
   return { T, frames, calls, store, handlers };
 }
+
+test('ignores pre-revision (v1) local bests after the score reset', () => {
+  const { T } = loadGame({
+    seed: {
+      'course-race-best-score': '7795',
+      'course-race-stage-bests': '[2600, 2600, 2595]'
+    }
+  });
+  assert.equal(T.best, 0);
+});
 
 test('starts in edit mode on stage 1', () => {
   const { T } = loadGame();
