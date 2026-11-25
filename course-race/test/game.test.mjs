@@ -8,7 +8,7 @@ import vm from 'node:vm';
 // 純粋ロジック（logic.js）は実物を読み込んで使う。
 // ここではゲーム本体の進行（編集・出発可否・レース・ゴール・スコア記録）を検証する。
 
-function loadGame({ cloudCourses = null } = {}) {
+function loadGame({ cloudCourses = null, seed = {} } = {}) {
   const calls = { record: [], saveCourses: [] };
   const handlers = {};
   const elements = {};
@@ -38,6 +38,7 @@ function loadGame({ cloudCourses = null } = {}) {
     classList: { toggle: () => {}, add: () => {}, remove: () => {} }
   });
 
+  Object.assign(store, seed);
   const sandbox = {
     console,
     document: {
@@ -78,6 +79,8 @@ function loadGame({ cloudCourses = null } = {}) {
       get lastStageScore(){ return lastStageScore; },
       get best(){ return best; },
       get stars(){ return currentStars(); },
+      get bonusCount(){ return bonusCount; },
+      get bonus(){ return bonus; },
       // 障害物以外の全マスをみちにする（最短路が必ずできる）
       solveAll() {
         let g = grid;
@@ -121,6 +124,16 @@ function loadGame({ cloudCourses = null } = {}) {
   return { T, frames, calls, store, handlers };
 }
 
+test('ignores pre-revision (v1) local bests after the score reset', () => {
+  const { T } = loadGame({
+    seed: {
+      'course-race-best-score': '7795',
+      'course-race-stage-bests': '[2600, 2600, 2595]'
+    }
+  });
+  assert.equal(T.best, 0);
+});
+
 test('starts in edit mode on stage 1', () => {
   const { T } = loadGame();
   assert.equal(T.phase, 'edit');
@@ -149,12 +162,25 @@ test('a connected course races to the goal, collects stars and records the total
   frames(400); // 約6.7秒ぶん（ゴールまで約4.5秒）
   assert.equal(T.phase, 'clear');
   assert.equal(T.stars, 2);
-  // 500（ゴール）+ 200（スター2つ）- 時間ペナルティ（約4.5秒で20点）
-  assert.ok(T.lastStageScore >= 640 && T.lastStageScore <= 700, `score was ${T.lastStageScore}`);
+  // 金のスターが1つ出現して取れる（Math.random は 0.5 に固定）
+  assert.equal(T.bonusCount, 1);
+  // 500（ゴール）+ 200（スター2つ）+ 500（金のスター）- 時間ペナルティ（約4.5秒で20点）
+  assert.ok(T.lastStageScore >= 1100 && T.lastStageScore <= 1250, `score was ${T.lastStageScore}`);
   assert.equal(T.best, T.lastStageScore);
   assert.equal(calls.record.length, 1);
   assert.equal(calls.record[0][0], 'course-race');
   assert.equal(calls.record[0][1], T.lastStageScore);
+});
+
+test('free mode never spawns the golden star bonus', () => {
+  const { T, frames, handlers } = loadGame();
+  handlers['btn-mode:click']();
+  T.solveAll();
+  T.startRace();
+  assert.equal(T.phase, 'race');
+  frames(400);
+  assert.equal(T.phase, 'clear');
+  assert.equal(T.bonusCount, 0);
 });
 
 test('challenge mode caps placeable stars at the limit', () => {
