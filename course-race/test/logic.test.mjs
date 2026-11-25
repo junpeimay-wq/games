@@ -11,6 +11,7 @@ import {
   createGrid,
   deserializeGrid,
   findPath,
+  pickBonusIndex,
   serializeGrid,
   stageScore,
   starsOnPath
@@ -114,6 +115,14 @@ test('countTiles and starsOnPath count placed stars', () => {
   const path = findPath(grid, FREE_STAGE.start, FREE_STAGE.goal);
   assert.equal(starsOnPath(grid, path), 2);
   assert.equal(starsOnPath(grid, null), 0);
+});
+
+test('pickBonusIndex picks a cell ahead of the car or -1 when there is no room', () => {
+  assert.equal(pickBonusIndex(15, 7, 0.5), 12);
+  assert.equal(pickBonusIndex(10, 0, 0), 2);
+  assert.equal(pickBonusIndex(10, 0, 0.999), 9);
+  assert.equal(pickBonusIndex(5, 4, 0.5), -1);
+  assert.equal(pickBonusIndex(3, 0, 0.5), 2);
 });
 
 test('every challenge stage is solvable in principle (start and goal not enclosed)', () => {
