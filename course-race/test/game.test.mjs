@@ -78,19 +78,28 @@ function loadGame({ cloudCourses = null } = {}) {
       get lastStageScore(){ return lastStageScore; },
       get best(){ return best; },
       get stars(){ return currentStars(); },
-      // スタートの行をまっすぐ進み、最後にゴールの行へ曲がる解法を描く
-      solve() {
+      // 障害物以外の全マスをみちにする（最短路が必ずできる）
+      solveAll() {
         let g = grid;
-        const s = stage;
-        for (let x = 0; x < COLS; x += 1) g = applyTool(g, s, 'road', x, s.start[1]);
-        let y = s.start[1];
-        while (y !== s.goal[1]) {
-          y += Math.sign(s.goal[1] - s.start[1]);
-          g = applyTool(g, s, 'road', COLS - 1, y);
+        for (let y = 0; y < ROWS; y += 1) {
+          for (let x = 0; x < COLS; x += 1) g = applyTool(g, stage, 'road', x, y);
         }
         grid = g;
       },
-      starAt(x, y) { grid = applyTool(grid, stage, 'star', x, y); }
+      // 最短路の上に n 個のスターを置く
+      starOnRoute(n) {
+        const path = findPath(grid, stage.start, stage.goal);
+        let placed = 0;
+        for (const [x, y] of path.slice(1, -1)) {
+          if (placed >= n) break;
+          grid = applyTool(grid, stage, 'star', x, y);
+          placed += 1;
+        }
+      },
+      paintAtCell(toolName, x, y) { selectTool(toolName); paintCell(x, y); },
+      countTile(tile) { return countTiles(grid, tile); },
+      starTile: TILE.STAR,
+      setTimeLimit(sec) { stage.timeLimit = sec; }
     };
   `;
   sandbox.__calls = calls;
@@ -124,21 +133,47 @@ test('GO without a connected road does not start the race', () => {
   assert.equal(T.phase, 'edit');
 });
 
+test('GO is blocked when the route has fewer stars than required', () => {
+  const { T } = loadGame();
+  T.solveAll();
+  T.startRace();
+  assert.equal(T.phase, 'edit'); // コース1は⭐2こ必須
+});
+
 test('a connected course races to the goal, collects stars and records the total', () => {
   const { T, frames, calls } = loadGame();
-  T.solve();
-  T.starAt(5, 4);
+  T.solveAll();
+  T.starOnRoute(2);
   T.startRace();
   assert.equal(T.phase, 'race');
-  frames(400); // 約6.7秒ぶん（ゴールまで約4秒）
+  frames(400); // 約6.7秒ぶん（ゴールまで約4.5秒）
   assert.equal(T.phase, 'clear');
-  assert.equal(T.stars, 1);
-  // 500（ゴール）+ 100（スター）- 時間ペナルティ（約4秒で20点）
-  assert.ok(T.lastStageScore >= 540 && T.lastStageScore <= 600, `score was ${T.lastStageScore}`);
+  assert.equal(T.stars, 2);
+  // 500（ゴール）+ 200（スター2つ）- 時間ペナルティ（約4.5秒で20点）
+  assert.ok(T.lastStageScore >= 640 && T.lastStageScore <= 700, `score was ${T.lastStageScore}`);
   assert.equal(T.best, T.lastStageScore);
   assert.equal(calls.record.length, 1);
   assert.equal(calls.record[0][0], 'course-race');
   assert.equal(calls.record[0][1], T.lastStageScore);
+});
+
+test('challenge mode caps placeable stars at the limit', () => {
+  const { T } = loadGame();
+  T.solveAll();
+  for (let x = 0; x < 12; x += 1) T.paintAtCell('star', x, 0);
+  for (let x = 0; x < 12; x += 1) T.paintAtCell('star', x, 1);
+  assert.equal(T.countTile(T.starTile), 5);
+});
+
+test('the race returns to edit mode when the time limit runs out', () => {
+  const { T, frames } = loadGame();
+  T.solveAll();
+  T.starOnRoute(2);
+  T.setTimeLimit(0.5);
+  T.startRace();
+  assert.equal(T.phase, 'race');
+  frames(90); // 約1.5秒ぶん
+  assert.equal(T.phase, 'edit');
 });
 
 const cloudGrid = [
@@ -171,7 +206,8 @@ test('saving a course in free mode persists locally and to the cloud', async () 
 
 test('advancing after a clear moves to the next stage in edit mode', () => {
   const { T, frames } = loadGame();
-  T.solve();
+  T.solveAll();
+  T.starOnRoute(2);
   T.startRace();
   frames(400);
   assert.equal(T.phase, 'clear');
