@@ -7,11 +7,13 @@ import {
   STAGES,
   TILE,
   applyTool,
+  countTiles,
   createGrid,
   deserializeGrid,
   findPath,
   serializeGrid,
-  stageScore
+  stageScore,
+  starsOnPath
 } from '../logic.js';
 
 test('createGrid places obstacles, start and goal', () => {
@@ -90,6 +92,28 @@ test('serialize and deserialize round-trip a grid', () => {
 test('deserializeGrid rejects malformed input and keeps the stage layout', () => {
   const grid = deserializeGrid('garbage', STAGES[2]);
   assert.deepEqual(grid, createGrid(STAGES[2]));
+});
+
+test('challenge stages define a star requirement and a time limit; free mode has neither', () => {
+  for (const stage of STAGES) {
+    assert.ok(stage.requiredStars >= 2, stage.name);
+    assert.ok(stage.timeLimit > 0, stage.name);
+  }
+  assert.equal(FREE_STAGE.requiredStars, 0);
+  assert.equal(FREE_STAGE.timeLimit, null);
+});
+
+test('countTiles and starsOnPath count placed stars', () => {
+  let grid = createGrid(FREE_STAGE);
+  for (let x = 0; x < COLS; x += 1) grid = applyTool(grid, FREE_STAGE, 'road', x, 4);
+  grid = applyTool(grid, FREE_STAGE, 'road', 11, 3);
+  grid = applyTool(grid, FREE_STAGE, 'star', 3, 4);
+  grid = applyTool(grid, FREE_STAGE, 'star', 7, 4);
+  grid = applyTool(grid, FREE_STAGE, 'star', 0, 0); // 草地には置けない
+  assert.equal(countTiles(grid, TILE.STAR), 2);
+  const path = findPath(grid, FREE_STAGE.start, FREE_STAGE.goal);
+  assert.equal(starsOnPath(grid, path), 2);
+  assert.equal(starsOnPath(grid, null), 0);
 });
 
 test('every challenge stage is solvable in principle (start and goal not enclosed)', () => {
